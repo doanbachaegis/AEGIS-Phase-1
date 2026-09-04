@@ -75,9 +75,28 @@ pub struct Decision {
     pub service_id: String,
     pub asset: Address,
     pub amount: i128,
+    /// The version that PRODUCED this decision. Frozen for life: it is bound into
+    /// `decision_id` and `memo_hash` (DECISIONS.md #4, SOW §6.3), so moving it would make
+    /// both un-recomputable from public data.
     pub policy_version: u32,
+    /// The policy version that was current when `resolve()` ran, or `None` while the
+    /// decision has never been resolved.
+    ///
+    /// `resolve(approve = true)` re-judges against the policy current at resolve time
+    /// while `policy_version` stays frozen, so without this field a re-judgement that
+    /// still passed was indistinguishable from one that never ran. On the owner-rejection
+    /// path no re-judgement happens; the field then records the version that was current
+    /// at the moment of the rejection, which keeps the invariant
+    /// `resolved == resolved_policy_version.is_some()` checkable by a reader.
+    pub resolved_policy_version: Option<u32>,
     pub verdict: Verdict,
+    /// The CURRENT (final) code. `resolve()` overwrites it.
     pub reason_code: ReasonCode,
+    /// The code recorded at `authorize()` time. Written ONCE and never again, so an
+    /// approval cannot erase the fact that the decision was ever escalated: after
+    /// `resolve(approve = true)` `reason_code` reads `Ok` while this still reads
+    /// `PendingApproval` (SOW §5.2 scenario 5 stays visible in the evidence trail).
+    pub original_reason_code: ReasonCode,
     pub ledger_seq: u32,
     /// whether it went through the human approver path `resolve()` (D4 surfaces escalation)
     pub resolved: bool,

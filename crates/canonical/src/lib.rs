@@ -89,7 +89,8 @@ pub fn memo_hash(intent_hash: &[u8; 32], policy_version: u32, decision_id: &[u8;
     sha256(&pre)
 }
 
-/// ⚠️ ABI NOT YET FINALIZED — see DECISIONS.md #4.
+/// `sha256("AEGIS-DECISION-v1" || intent_hash[32] || policy_version_be_u32[4])` — deterministic,
+/// so a reviewer can recompute it from public data. See DECISIONS.md #4 (settled 2026-09-04).
 pub fn decision_id(intent_hash: &[u8; 32], policy_version: u32) -> [u8; 32] {
     let mut pre = Vec::with_capacity(53);
     pre.extend_from_slice(DECISION_DOMAIN);

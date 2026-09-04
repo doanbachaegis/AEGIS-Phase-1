@@ -27,8 +27,8 @@ export function memoHash(
 }
 
 /**
- * ⚠️ ABI NOT YET FINALIZED — see DECISIONS.md #4.
- * Deterministic derivation so a reviewer can recompute decision_id from public data.
+ * Deterministic derivation so a reviewer can recompute decision_id from public data —
+ * see DECISIONS.md #4 (settled 2026-09-04) and SPEC.md §3.
  */
 export function decisionId(intentHash: Uint8Array, policyVersion: number): Uint8Array {
   need32(intentHash, "intent_hash");

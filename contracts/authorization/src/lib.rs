@@ -33,24 +33,28 @@ impl AuthorizationContract {
         }
         owner.require_auth();
         env.storage().instance().set(&DataKey::Owner, &owner);
+        Self::extend_instance(&env);
         Ok(())
     }
 
     // ---------- lifecycle, owner-gated ----------
 
     pub fn set_operator(env: Env, operator: Address) -> Result<(), Error> {
+        Self::extend_instance(&env);
         Self::require_owner(&env)?;
         env.storage().instance().set(&DataKey::Operator, &operator);
         Ok(())
     }
 
     pub fn register_agent(env: Env, policy: Policy) -> Result<u32, Error> {
+        Self::extend_instance(&env);
         Self::require_owner(&env)?;
         Self::put_policy(&env, policy)
     }
 
     /// Bump the version. Existing decisions keep their own `policy_version` (§6.3).
     pub fn set_policy(env: Env, mut policy: Policy) -> Result<u32, Error> {
+        Self::extend_instance(&env);
         Self::require_owner(&env)?;
         let current = Self::policy_of(&env, &policy.agent)?;
         policy.version = current.version + 1;
@@ -58,10 +62,14 @@ impl AuthorizationContract {
     }
 
     pub fn revoke_agent(env: Env, agent: Address) -> Result<(), Error> {
+        Self::extend_instance(&env);
         Self::require_owner(&env)?;
         let mut p = Self::policy_of(&env, &agent)?;
         p.status = AgentStatus::Revoked;
-        env.storage().persistent().set(&DataKey::Policy(agent), &p);
+        // Written through the SAME path as every other policy write, so the TTL bump
+        // cannot be forgotten here — README: "extend_ttl on every write to a persistent
+        // entry". A revoked policy that is allowed to expire would silently un-revoke.
+        Self::put_policy(&env, p)?;
         Ok(())
     }
 
@@ -72,17 +80,24 @@ impl AuthorizationContract {
     /// **Idempotent on `intent_hash`**: calling again returns the original decision, creates
     /// no new decision and raises no error (SOW §5.2 scenario 7 + §6.3). The "single-use"
     /// property lives at SETTLEMENT, guarded by the `settled` flag — see DECISIONS.md #1.
+    ///
+    /// `caller` must be the owner or the configured operator and must sign; `agent` must
+    /// sign independently. `caller` is NOT part of `canonical_intent`, so it never enters
+    /// `intent_hash`, `decision_id` or `memo_hash`.
     pub fn authorize(
         env: Env,
+        caller: Address,
         intent_hash: BytesN<32>,
         agent: Address,
         service_id: String,
         asset: Address,
         amount: i128,
     ) -> Result<Decision, Error> {
-        Self::require_caller(&env)?;
-        // The agent signs for itself: a leaked operator key still cannot impersonate
-        // another agent.
+        Self::extend_instance(&env);
+        Self::require_caller(&env, &caller)?;
+        // A SEPARATE property from the caller check above, deliberately not folded into it:
+        // the agent authorizes its own spend. A leaked operator key therefore still cannot
+        // impersonate another agent.
         agent.require_auth();
 
         if amount <= 0 {
@@ -99,7 +114,16 @@ impl AuthorizationContract {
         }
 
         let policy = Self::policy_of(&env, &agent)?;
-        let (verdict, reason) = Self::evaluate(&env, &policy, &service_id, &asset, amount);
+        let (mut verdict, mut reason) = Self::evaluate(&env, &policy, &service_id, &asset, amount);
+
+        // Only charge the window when the verdict is actually Approved, and let the charge
+        // itself veto (C-2). `evaluate` has already cleared `cumulative_window_cap`, so this
+        // branch is unreachable from here — it exists so the cap is enforced where the budget
+        // is SPENT, not only where it is judged, for every present and future call site.
+        if verdict == Verdict::Approved && !Self::charge_window(&env, &policy, amount) {
+            verdict = Verdict::Rejected;
+            reason = ReasonCode::WindowCapExceeded;
+        }
 
         let decision_id = Self::derive_decision_id(&env, &intent_hash, policy.version);
         let decision = Decision {
@@ -110,17 +134,17 @@ impl AuthorizationContract {
             asset,
             amount,
             policy_version: policy.version,
+            // Never resolved yet — `resolve()` is the only writer of this field.
+            resolved_policy_version: None,
             verdict,
             reason_code: reason,
+            // Written ONCE, here. `resolve()` rewrites `reason_code` only, so the escalation
+            // that produced this decision stays on the chain even after an approval.
+            original_reason_code: reason,
             ledger_seq: env.ledger().sequence(),
             resolved: false,
             settled: false,
         };
-
-        // Only charge the window when the verdict is actually Approved.
-        if verdict == Verdict::Approved {
-            Self::charge_window(&env, &policy, amount);
-        }
 
         Self::put_decision(&env, &decision);
         env.storage()
@@ -139,6 +163,7 @@ impl AuthorizationContract {
 
     /// Human approver path. **owner-only** and **terminal** (§6.3).
     pub fn resolve(env: Env, decision_id: BytesN<32>, approve: bool) -> Result<Decision, Error> {
+        Self::extend_instance(&env);
         Self::require_owner(&env)?;
         let mut d = Self::get_decision(env.clone(), decision_id)?;
 
@@ -150,15 +175,48 @@ impl AuthorizationContract {
             return Err(Error::NotPendingApproval);
         }
 
+        // Read once, before the branch, so BOTH paths can record which version was current
+        // when the owner acted — that is what makes `resolved == resolved_policy_version
+        // .is_some()` an invariant a reader can check.
+        let policy = Self::policy_of(&env, &d.agent)?;
+        d.resolved_policy_version = Some(policy.version);
+
         if approve {
-            let policy = Self::policy_of(&env, &d.agent)?;
-            Self::charge_window(&env, &policy, d.amount);
-            d.verdict = Verdict::Approved;
-            d.reason_code = ReasonCode::Ok;
+            // C-2: RE-JUDGE under the policy that is current NOW. The decision froze its own
+            // version at `authorize` time, but the owner is approving it today — a revocation
+            // or a lowered cap in between must not be bypassable through the approval path
+            // (SOW §5.2 scenario 6: "revocation takes effect immediately").
+            let (verdict, reason) =
+                Self::evaluate(&env, &policy, &d.service_id, &d.asset, d.amount);
+
+            if verdict == Verdict::Rejected {
+                // The current policy refuses it — record the refusal with the reason
+                // `evaluate` produced rather than rubber-stamping an Approved.
+                d.verdict = Verdict::Rejected;
+                d.reason_code = reason;
+            } else if Self::charge_window(&env, &policy, d.amount) {
+                // `RequiresApproval` here means the intent still merely trips the approval
+                // threshold — and THIS CALL is that approval, so it counts as a pass.
+                d.verdict = Verdict::Approved;
+                d.reason_code = ReasonCode::Ok;
+            } else {
+                d.verdict = Verdict::Rejected;
+                d.reason_code = ReasonCode::WindowCapExceeded;
+            }
+
+            // `policy_version` deliberately KEEPS the version that produced this decision,
+            // even though the re-judgement above ran against a possibly newer one.
+            // `decision_id = sha256(tag || intent_hash || policy_version_be)` (DECISIONS.md #4)
+            // and `memo_hash` both bind this field, so rewriting it would make `decision_id`
+            // un-recomputable from public data and break §6.3 ("existing decisions keep their
+            // own policy_version"). The version the re-judgement actually ran under is
+            // recorded ALONGSIDE it, in `resolved_policy_version`, which no hash binds.
         } else {
             d.verdict = Verdict::Rejected;
             d.reason_code = ReasonCode::OwnerRejected;
         }
+        // Only `reason_code` is ever rewritten here — `original_reason_code` keeps the code
+        // `authorize()` recorded, so the escalation survives whichever way this goes.
         d.resolved = true;
 
         Self::put_decision(&env, &d);
@@ -171,14 +229,27 @@ impl AuthorizationContract {
     }
 
     /// Called by the executor right before submitting. Guards against double-settle.
-    pub fn mark_settled(env: Env, decision_id: BytesN<32>) -> Result<Decision, Error> {
-        Self::require_caller(&env)?;
+    ///
+    /// `caller` must be the owner or the configured operator, and must sign.
+    pub fn mark_settled(
+        env: Env,
+        caller: Address,
+        decision_id: BytesN<32>,
+    ) -> Result<Decision, Error> {
+        Self::extend_instance(&env);
+        Self::require_caller(&env, &caller)?;
         let mut d = Self::get_decision(env.clone(), decision_id)?;
         if d.verdict != Verdict::Approved {
             return Err(Error::NotApproved);
         }
         if d.settled {
             return Err(Error::AlreadySettled);
+        }
+        // C-3: an approval granted BEFORE the owner revoked the agent must not still be
+        // settleable afterwards — SOW §5.2 scenario 6 promises revocation takes effect
+        // immediately, and settlement is the last on-chain gate before the money moves.
+        if Self::policy_of(&env, &d.agent)?.status == AgentStatus::Revoked {
+            return Err(Error::AgentRevoked);
         }
         d.settled = true;
         Self::put_decision(&env, &d);
@@ -188,6 +259,7 @@ impl AuthorizationContract {
     // ---------- views: the console reads these DIRECTLY over RPC ----------
 
     pub fn get_decision(env: Env, decision_id: BytesN<32>) -> Result<Decision, Error> {
+        Self::extend_instance(&env);
         env.storage()
             .persistent()
             .get(&DataKey::Decision(decision_id))
@@ -195,6 +267,7 @@ impl AuthorizationContract {
     }
 
     pub fn decision_by_intent(env: Env, intent_hash: BytesN<32>) -> Result<Decision, Error> {
+        Self::extend_instance(&env);
         let id: BytesN<32> = env
             .storage()
             .persistent()
@@ -205,6 +278,7 @@ impl AuthorizationContract {
 
     /// EFFECTIVE window state (tumbling reset already applied).
     pub fn get_window(env: Env, agent: Address) -> Result<WindowState, Error> {
+        Self::extend_instance(&env);
         let policy = Self::policy_of(&env, &agent)?;
         let now = env.ledger().timestamp();
         let key = DataKey::Window(agent);
@@ -220,12 +294,14 @@ impl AuthorizationContract {
     }
 
     pub fn get_policy(env: Env, agent: Address) -> Result<Policy, Error> {
+        Self::extend_instance(&env);
         Self::policy_of(&env, &agent)
     }
 
     /// `sha256(intent_hash || policy_version_be || decision_id)` computed ON CHAIN.
     /// The verifier compares this against the transaction's real MEMO_HASH.
     pub fn memo_hash(env: Env, decision_id: BytesN<32>) -> Result<BytesN<32>, Error> {
+        Self::extend_instance(&env);
         let d = Self::get_decision(env.clone(), decision_id)?;
         let mut pre = Bytes::new(&env);
         pre.append(&Bytes::from_slice(&env, &d.intent_hash.to_array()));
@@ -277,22 +353,33 @@ impl AuthorizationContract {
         }
     }
 
-    fn charge_window(env: &Env, policy: &Policy, amount: i128) {
+    /// Adds `amount` to the agent's tumbling window.
+    ///
+    /// Returns `false` and writes NOTHING when the charge would push the agent past
+    /// `cumulative_window_cap` (C-2). Enforcing the cap here — and not only in
+    /// `evaluate` — means the budget cannot be overspent by any path that reaches the
+    /// spend without re-judging first.
+    fn charge_window(env: &Env, policy: &Policy, amount: i128) -> bool {
         let now = env.ledger().timestamp();
         let key = DataKey::Window(policy.agent.clone());
         let current = env.storage().persistent().get::<_, WindowState>(&key);
-        let next = match current {
-            Some(w) if now < w.window_start + policy.window_seconds => WindowState {
-                window_start: w.window_start,
-                spent: w.spent + amount,
-            },
-            _ => WindowState {
-                window_start: now,
-                spent: amount,
-            },
+        let (window_start, spent) = match current {
+            Some(w) if now < w.window_start + policy.window_seconds => (w.window_start, w.spent),
+            _ => (now, 0),
         };
-        env.storage().persistent().set(&key, &next);
+        let next_spent = spent + amount;
+        if next_spent > policy.cumulative_window_cap {
+            return false;
+        }
+        env.storage().persistent().set(
+            &key,
+            &WindowState {
+                window_start,
+                spent: next_spent,
+            },
+        );
         Self::extend(env, &key);
+        true
     }
 
     fn derive_decision_id(env: &Env, intent_hash: &BytesN<32>, version: u32) -> BytesN<32> {
@@ -324,6 +411,15 @@ impl AuthorizationContract {
         Self::extend(env, &key);
     }
 
+    /// Instance storage holds `Owner` and `Operator`. If the instance entry is archived
+    /// EVERY entry point fails, which destroys the "readable from the contract ID alone"
+    /// claim — so it is bumped on every entry point, reads included, not only on writes.
+    fn extend_instance(env: &Env) {
+        env.storage()
+            .instance()
+            .extend_ttl(BUMP_THRESHOLD, BUMP_AMOUNT);
+    }
+
     fn extend(env: &Env, key: &DataKey) {
         env.storage()
             .persistent()
@@ -342,18 +438,38 @@ impl AuthorizationContract {
         Ok(())
     }
 
-    /// owner OR operator. The operator can call `authorize` but cannot change policy.
-    fn require_caller(env: &Env) -> Result<(), Error> {
+    /// The delegated caller for `authorize` / `mark_settled`: the **owner OR the operator**
+    /// when one is configured. Neither can change policy through these entry points.
+    ///
+    /// This is a genuine disjunction, and it is what the `caller: Address` parameter buys.
+    /// `Address::require_auth` **traps** rather than returning a bool, and soroban-sdk 27
+    /// exposes no "did X sign?" predicate, so "try the owner, then the operator" is not
+    /// available — the first miss aborts the whole invocation. The contract must therefore
+    /// name exactly ONE address before any authorization runs. Taking that address from the
+    /// invocation makes the disjunction a plain equality check *after* the auth:
+    ///
+    /// 1. `caller.require_auth()` — proves whoever is named actually signed. A third party
+    ///    who passes the owner's address here cannot produce the owner's signature, so this
+    ///    line traps before any membership check is reached.
+    /// 2. compare against owner / operator — a signature from some *other* real account is
+    ///    a valid signature, just not a permitted one, and is refused with
+    ///    `NotAuthorizedCaller`.
+    ///
+    /// Before `caller` existed this resolved to operator-if-set-else-owner, which locked the
+    /// owner out of both entry points as soon as an operator was configured.
+    fn require_caller(env: &Env, caller: &Address) -> Result<(), Error> {
+        caller.require_auth();
+
+        if caller == &Self::owner(env)? {
+            return Ok(());
+        }
         match env
             .storage()
             .instance()
             .get::<_, Address>(&DataKey::Operator)
         {
-            Some(op) => {
-                op.require_auth();
-                Ok(())
-            }
-            None => Self::require_owner(env),
+            Some(op) if &op == caller => Ok(()),
+            _ => Err(Error::NotAuthorizedCaller),
         }
     }
 }
