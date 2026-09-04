@@ -13,8 +13,12 @@ Nothing here is illustrative and nothing is rounded.
 
 A reference is an `intent_hash` or a `decision_id`. Both are 64 lowercase hex characters.
 
-- **In the console** (once deployed — see `INDEX.md`, this artifact is outstanding): paste either value into the lookup box.
-- **Today, without the console**: read the decision straight off the chain —
+- **In the console** — <https://aegis-production-2216.up.railway.app> — paste either value into the
+  lookup box, or open it directly at `/intent/<intent_hash>` or `/decision/<decision_id>`. The
+  console tries `decision_by_intent` first and falls back to `get_decision`, so whichever of the two
+  you were handed resolves. Every reference in this file was loaded that way and checked:
+  `d4-results.md`.
+- **Without the console**: read the decision straight off the chain —
 
 ```bash
 stellar contract invoke \

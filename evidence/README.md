@@ -39,7 +39,23 @@ The contract is
 
 ### The no-setup check
 
-Open any of these ten links. Each is a real payment on the public testnet ledger. Each carries a
+**Open the console: <https://aegis-production-2216.up.railway.app>**
+
+No login, no install, no key. Paste any reference from `d4-intent-references.md` into the lookup
+box — or open one directly, for example
+[an approved and settled intent](https://aegis-production-2216.up.railway.app/intent/9a9ebd5efcd76521bd822db194815ea1d892a2860c953aa010ba34c9aab9cf2a)
+and
+[one the owner refused by hand](https://aegis-production-2216.up.railway.app/decision/03defcb77539553dac3b4d96ed2b6e6c31aa57b999da307dc2b67c62d125cee7).
+Every authoritative field on those pages is read live from the contract over Soroban RPC, with no
+AEGIS database in the path; the page prints the `stellar contract invoke` command that reproduces
+each value without the console at all. Refusals are shown with the same weight as approvals.
+
+All 70 decisions and all 10 settlements were loaded through that console in a real browser and
+checked field by field — **70/70 and 10/10**, in `d4-results.md`, which also states what that method
+does not prove.
+
+Or check the ledger directly, with no AEGIS software of any kind. Open any of these ten links. Each
+is a real payment on the public testnet ledger. Each carries a
 `MEMO_HASH` — a 32-byte fingerprint fixed at signing time that cannot be edited afterwards —
 committing that payment to one specific governance decision.
 
@@ -515,13 +531,19 @@ check it yourself.
 | A replayed `intent_hash` returns the original decision and produces no second payment | **10/10 + 10/10** | `d1-authorize/results.md` §7; `d3-results.md` | balances unchanged across the replay phase: +0.0000000 |
 | A revoked agent's intent is rejected on the next `authorize()` | **10/10** | `d1-authorize/results.md` scenario 6 | reason code `4` `AgentRevoked` |
 | `resolve()` is owner-only and terminal; a second call fails | **2/2 refused** | `d2-refusals.md` rows 1–2, `d2-approval-trail.md` | both second calls got `AlreadyResolved`; one deliberately asked for the opposite answer |
-| The console lets a reviewer follow any intent from agent to settlement without technical setup | ⚠️ **not yet — console not deployed** | see `INDEX.md` | the underlying data is complete and listed in `d4-intent-references.md`; the hosted page is outstanding |
+| The console lets a reviewer follow any intent from agent to settlement without technical setup | **yes** — <https://aegis-production-2216.up.railway.app> | `d4-results.md`, `d4-screenshots/` | open any reference from `d4-intent-references.md`; **70/70** decisions and **10/10** transaction links checked through the live page |
 
-**The last row is the one gap, and it is a real one.** The console is implemented but not deployed,
-so the §6.1 D4 artifacts that depend on a live URL — the public link, the screenshots, and the
-"70/70 viewable / 10/10 links live" table — do not exist yet. `INDEX.md` lists them as outstanding
-rather than quietly omitting them. Everything the console would display is in this pack and is
-checkable by the commands above; what is missing is the no-setup way to see it.
+**The last row was the outstanding one and is now met, with one qualification.** The console is
+deployed, and the three §6.1 D4 artifacts that depended on a live URL exist: the public link, the
+screenshots (`d4-screenshots/`), and the result table (`d4-results.md`). Every one of the 70
+decisions and 10 settlements was loaded through the live page in a real browser, and the verdict and
+reason code were read back out of the rendered DOM.
+
+The qualification: the **settlement transaction link is searched for, not stored.** The contract
+records *that* a decision settled and never *which* transaction did it, so the page scans the
+published settlement accounts on Horizon for a transaction carrying the `memo_hash()` the contract
+returned. All ten render; the search is bounded, and its bounds are stated in `d4-results.md` §B and
+`INDEX.md` gap 1.
 
 ---
 
@@ -542,23 +564,38 @@ a decision that will never exist. It is also inconsistent with this project's ow
 verifier draws exactly this distinction on its exit codes, where `3 UNAVAILABLE` is emphatically not
 a pass. Full write-up in `d2-refusals.md`.
 
-**2. A stale contract ID committed in the gateway registry.** `apps/gateway/registry.json` still
+**2. The console's settlement link comes from a bounded search, not from a stored field.** The
+contract records **that** a decision was settled and never **which** transaction did it, so there is
+no `settlement_tx_hash` to read on-chain. Rather than have the AEGIS API name the transaction — which
+would ask a reviewer to trust the party under review to name its own receipt, and which this
+deployment could not do anyway (`/health` reports `database: degraded`) — the page **searches**
+Horizon for a transaction whose `MEMO_HASH` equals the contract's `memo_hash()`, and tags the result
+*derived from ledger*.
+
+*Consequence, precisely:* the link is a consequence of public data rather than a claim, and §6.3
+survives because Horizon is Stellar infrastructure, not an AEGIS service. But the scan walks only the
+**last 1000 transactions** of the accounts in `VITE_SETTLEMENT_ACCOUNTS` — Horizon has no global memo
+index — so at higher volume it would need a cursor. When it stops at that cap the page says so, and
+an absence found that way is not proof of absence. A miss never contradicts `settled`, which is read
+from the contract. Bounds in full: `d4-results.md` §B.
+
+**3. A stale contract ID committed in the gateway registry.** `apps/gateway/registry.json` still
 pins the pre-redeploy contract (`CAAD6727…`) while `.env`, `services.json` and the console point at
 the current one. `Registry.load()` refuses to boot on that mismatch — correctly. The evidence run
 worked around it with a corrected copy (`d2-gateway-registry.effective.json`, kept here so it can be
 diffed) rather than editing `apps/**` mid-run. **The real fix belongs in the committed file.**
 
-**3. `tools/verifier/README.md` has a stale "Status" section.** It still says the Horizon-side
+**4. `tools/verifier/README.md` has a stale "Status" section.** It still says the Horizon-side
 checks "have no live subject yet" because "the executor is still a skeleton". That was true when it
 was written and is now false: ten settlements exist and all ten verify. The tool itself is correct —
 only its README is out of date. The example receipt in that file also shows the old contract ID.
 
-**4. Scenario 6 (`AgentRevoked`) is not demonstrated in the D2/D3 pack**, only in D1. Demonstrating
+**5. Scenario 6 (`AgentRevoked`) is not demonstrated in the D2/D3 pack**, only in D1. Demonstrating
 it through the gateway would mean revoking `agent-1`, ending its usefulness for the rest of the
 D2/D3 evidence. It belongs with the D1 contract evidence, where disposable agent identities can be
 revoked — and there it is exercised ten times.
 
-**5. The finality median exceeds §7.2's "< 2 sec" figure, and always will.** Median POST → verdict
+**6. The finality median exceeds §7.2's "< 2 sec" figure, and always will.** Median POST → verdict
 is **713 ms**; median POST → finality is **5628 ms**. Stellar closes a ledger roughly every 5
 seconds and no gateway tuning changes that. §7.2 scopes that figure as a roadmap target rather than
 an acceptance criterion, and both numbers are reported rather than the flattering one. Nothing was
@@ -585,6 +622,9 @@ tuned to improve either.
 | `d3-audit-receipts.md` | D3: agent / owner / policy version / verdict / `decision_id` / `tx_hash` |
 | `d3-receipts/`, `d3-verifier/` | D3: one receipt and one verifier report per settlement |
 | `d2-d3-README.md` | D2/D3: how that run was produced and under what conditions |
+| `d4-results.md` | D4: **70/70** decisions viewable, **10/10** transaction links live — and what the method does not prove |
+| `d4-screenshots/` | D4: the approved and refused pages, captured from the live console |
+| `d4-console-verification.json` | D4: all 82 page loads, machine-readable |
 
 Repository root: `README.md` (project overview and Phase 1 boundaries), `DECISIONS.md` (why the ABI
 looks the way it does — #6 and #10 are the two trust boundaries in Part 4),

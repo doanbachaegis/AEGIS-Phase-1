@@ -93,28 +93,61 @@ exit `3` must never be read as a pass.
 
 | §6.1 artifact | Status | Where |
 |---|---|---|
-| Public link to the console, *"the primary evidence for the Ambassador to open and search"* | ❌ **Missing** | The console is **implemented** (`apps/console/`) but **not deployed**, so no public URL exists. See *Known gaps* below. |
+| Public link to the console, *"the primary evidence for the Ambassador to open and search"* | ✅ Present | **<https://aegis-production-2216.up.railway.app>** — live, no login, no setup. Paste any reference from `d4-intent-references.md` into the lookup box, or open a decision directly at `/intent/<intent_hash>` or `/decision/<decision_id>`. Verified by 82 real page loads in `d4-results.md` |
 | List of intent references for testing | ✅ Present | `d4-intent-references.md` — the 10 settled, the 20 D2 submissions, and all 70 D1 decisions, each with `intent_hash`, `decision_id`, expected and observed verdict, reason code, and tx hash where settled |
-| Screenshot of one approved intent showing the full chain and one refused intent showing its reason code | ❌ **Missing** | Requires the deployed console. Both underlying records exist and are readable on chain today — an approved one and a refused one are given in `README.md` §3.1. |
-| Result table showing 70/70 decisions viewable and 10/10 transaction links live | 🟡 **Partial** | The **10/10 transaction links** half is done and independently re-checked: all ten resolve on Horizon with `successful: true` (`d3-results.md`, and the check in `README.md` Part 1). The **70/70 decisions viewable** half is a statement about the console and cannot be produced until it is deployed. The 70 decisions themselves are **70/70 correct and readable on chain** — `d1-authorize/results.md` — which is a different claim from "viewable in the console". |
+| Screenshot of one approved intent showing the full chain and one refused intent showing its reason code | ✅ Present | `d4-screenshots/` — **`approved-full-chain.png`** (case `s10`: policy escalated it → owner `resolve()` on chain → settled, `memo_hash()` and all) and **`refused-owner-rejected.png`** (case `s15`: `Rejected` / `OwnerRejected`, with the `original_reason_code` `PendingApproval` the contract never rewrote). Two further refusals — `AgentRevoked` and `CapExceeded` — are included, and `d4-screenshots/README.md` says why each was chosen |
+| Result table showing 70/70 decisions viewable and 10/10 transaction links live | ✅ Present | `d4-results.md` — **70/70** decisions rendered with the correct verdict *and* reason code, and **10/10** transaction links live, each bound to its decision by a `MEMO_HASH` match. Produced by loading all 80 references in a real browser, plus 3 controls that had to find nothing. The console renders each transaction link itself, having found it by scanning the public ledger for the memo the contract commits to — the bounds of that search are stated under *Known gaps* below |
 | Consolidated evidence pack for D1 to D3 | ✅ Present | this directory; `INDEX.md` (this file) is its map and `README.md` its front door |
 | Reviewer README and public repo link | ✅ Present | `README.md` in this directory; repo <https://github.com/doanbachaegis/AEGIS-Phase-1> (public — verified) |
+
+**Supporting:** `d4-console-verification.json` (every one of the 82 page loads, with what the page
+rendered and the SHA-256 of its rendered text), `d4-screenshots/README.md` (why each reference was
+chosen, and the one cosmetic defect the images record rather than crop).
+
+**How the D4 numbers were produced, in one line:** a headless Chrome loaded every reference against
+the live console and the verdict and reason code were read back out of the rendered DOM — not
+fetched from RPC by the checking script, which would have proved only that the data resolves.
+`scripts/d4-console-verify.mjs` is the run; `scripts/d4-report.py` renders `d4-results.md` from it.
+Both are re-runnable, and `d4-results.md` states plainly what the method does **not** prove.
 
 ---
 
 ## Known gaps, stated plainly
 
-**1. The console is not deployed — three §6.1 D4 artifacts depend on it.**
+**1. The settlement transaction link is *searched for*, not stored — and the search is bounded.**
 
-`apps/console/` is implemented but has no public URL, so the public link, the two screenshots, and
-the "70/70 viewable" half of the results table do not exist. This is the largest outstanding item in
-the pack, and it is the one §6.1 calls *"the only entry point the Ambassador needs"*.
+The console at <https://aegis-production-2216.up.railway.app> renders all **10/10** settlement
+transaction links, but it is worth being exact about where they come from, because it is not where a
+reviewer would assume.
 
-What exists in its place: every record the console would display is in this pack, readable on chain,
-and checkable with the commands in `README.md` Part 3. `d4-intent-references.md` is the list of
-references to enter once the page is live. That substitutes for the console's *data*, not for its
-*"without technical setup"* property — which is exactly what SOW §6.3's last criterion asks for, and
-is therefore recorded as not yet met.
+The contract records **that** a decision was settled and never **which** Stellar transaction did it,
+so there is no `settlement_tx_hash` on-chain. The obvious fix — have the AEGIS API name the
+transaction — would ask a reviewer to trust the party under review to name its own receipt, and this
+deployment could not do it anyway (`/health` reports `database: degraded`, which is also why
+`purpose` and `client_ref` are absent). So the page instead **searches** the published settlement
+accounts on Horizon for a transaction whose `MEMO_HASH` equals the `memo_hash()` the contract
+returned, and tags the result *derived from ledger* — a third provenance tier, neither *read from
+chain* nor *display only*. §6.3's *"independently of the AEGIS database"* is preserved: Horizon is
+Stellar infrastructure, and the same request works from any browser tab.
+
+**The limits of that search, stated rather than discovered:**
+
+- It walks the **last 1000 transactions** of the accounts in `VITE_SETTLEMENT_ACCOUNTS` — the
+  executor and the payee from `services.json`. Horizon has no global memo index, so "on the network"
+  is approximated by "in the history of the accounts a settlement must touch". When the walk stops at
+  that cap the page says so, and an absence found that way is not proof of absence. At Phase 1
+  volumes the ten settlements are on the first page; a long-lived deployment would need a cursor.
+- **A miss never contradicts `settled`.** That flag is the contract's own answer and is rendered from
+  the contract. A failed or unreachable search is reported as a statement about the *search*.
+- If the memo appeared on **two** transactions the page would list both rather than pick one — a
+  decision settles once, so the discrepancy would be the finding.
+- The search needs the accounts to be configured. Unset `VITE_SETTLEMENT_ACCOUNTS` and the card says
+  the search was not configured; it never reports a decision as unsettled on that basis.
+
+The binding is closed in both directions and independently: `d4-results.md` §B compares each
+transaction's real `MEMO_HASH` against the `memo_hash()` **the page rendered**, and separately
+confirms that the hash the browser found equals the one in the settlement receipt. Those two routes
+never share a source.
 
 **2. `apps/gateway/registry.json` pins a stale contract ID.**
 
