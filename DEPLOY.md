@@ -133,6 +133,7 @@ Set these under **Variables**. Railway injects `PORT` itself; the server binds
 | Variable | Value / note |
 |---|---|
 | `OWNER_SECRET` | `S…`. Without it `POST /v1/decisions/:id/resolve` cannot work — `resolve` is owner-only on chain |
+| `AEGIS_WRITE_KEY` | ≥24 chars, `openssl rand -hex 32`. Gates the two write paths. **Unset means writes are DISABLED, not open** — both answer `503 writes_disabled`. Reads never consult it, so the console and every §6.3 check keep working without it |
 | `DATABASE_URL` | Neon pooled URL — see §4 |
 
 **Optional, sensible defaults**
@@ -249,6 +250,9 @@ Read three fields every time:
 
 - **`network_passphrase`** — if it has quote characters in it, you typed quotes
   into Railway. See §3.3.
+- **`writes`** — `protected` or `disabled`. `disabled` means `AEGIS_WRITE_KEY` is
+  unset, so the gateway is read-only: the console works and every §6.3 check passes,
+  but `POST /v1/intents` answers `503`. Never prints the key itself.
 - **`caller_role`** — `owner` means `OPERATOR_SECRET` was not picked up.
 - **`database`** — `degraded` means Postgres is unreachable. §4.3.
 

@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { MIN_WRITE_KEY_LENGTH } from "./writeAuth.js";
 import { Keypair } from "@aegis/bindings";
 import { parseCorsOrigins } from "./cors.js";
 
@@ -50,6 +51,11 @@ export interface GatewayConfig {
    * CORS is not enabled at all — see `cors.ts` for why that default is safe.
    */
   corsOrigins: readonly string[];
+  /**
+   * Bearer key for the two WRITE paths. Undefined disables writes rather than opening
+   * them — see ./writeAuth.ts. Reads never consult it.
+   */
+  writeKey: string | undefined;
 }
 
 const req = (env: NodeJS.ProcessEnv, name: string): string => {
@@ -101,6 +107,23 @@ function parseAgentSecrets(raw: string | undefined): Map<string, string> {
   return out;
 }
 
+/**
+ * A key too short to resist guessing is refused at BOOT, not at request time: a weak
+ * value must not be able to sit unnoticed in a running deployment. Absent is a valid
+ * configuration and means "reads only".
+ */
+function readWriteKey(raw: string | undefined): string | undefined {
+  const key = raw?.trim();
+  if (!key) return undefined;
+  if (key.length < MIN_WRITE_KEY_LENGTH) {
+    throw new Error(
+      `AEGIS_WRITE_KEY is ${key.length} characters; at least ${MIN_WRITE_KEY_LENGTH} are required. ` +
+        "Generate one with: openssl rand -hex 32",
+    );
+  }
+  return key;
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): GatewayConfig {
   const operatorSecret = env.OPERATOR_SECRET?.trim();
   const ownerSecret = env.OWNER_SECRET?.trim();
@@ -135,5 +158,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): GatewayConfig 
       : resolve(import.meta.dirname, "../registry.json"),
     txTimeoutSeconds: Number(env.TX_TIMEOUT_SECONDS ?? 45),
     corsOrigins: parseCorsOrigins(env.CORS_ORIGIN),
+    writeKey: readWriteKey(env.AEGIS_WRITE_KEY),
   };
 }

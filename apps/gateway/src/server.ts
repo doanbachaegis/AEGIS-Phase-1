@@ -18,6 +18,7 @@ import { openStore, type IntentStore } from "./db/store.js";
 import { jsonSafe } from "./json.js";
 import { Registry } from "./registry.js";
 import { defaultConsoleRoot, registerConsole } from "./staticConsole.js";
+import { registerWriteAuth } from "./writeAuth.js";
 import {
   ApprovalsQuery,
   DecisionIdParam,
@@ -180,6 +181,12 @@ export function registerRoutes(app: FastifyInstance, svc: Services): void {
      * has to be able to see that without reading the boot log.
      */
     database: store.mode,
+    /**
+     * Whether the two write paths are reachable, for the same reason `database` is
+     * here: an operator must be able to see it without reading the boot log. Never
+     * reports the key itself, only which of the two states the process is in.
+     */
+    writes: config.writeKey === undefined ? "disabled" : "protected",
   }));
 
   // ---------------------------------------------------------------- intents
@@ -806,6 +813,11 @@ export async function buildServer(config: GatewayConfig): Promise<FastifyInstanc
   // not-found handler, so the API routes below always win by construction: an
   // API miss stays a JSON 404 and never becomes `index.html` with status 200.
   await registerConsole(app, { root: defaultConsoleRoot() });
+
+  // Reads stay public -- §6.3 depends on a stranger being able to check a decision. The
+  // two write paths do not: this process holds OWNER_SECRET and would otherwise sign as
+  // the owner for anyone who found the URL. See ./writeAuth.ts.
+  registerWriteAuth(app, config.writeKey);
 
   const registry = Registry.load(config.registryPath, config.servicesPath, config.contractId);
   const agentSigner = new InProcessAgentSigner(config.agentSecrets, config.networkPassphrase);

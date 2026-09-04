@@ -14,7 +14,14 @@ and that payment carries a reference back to the decision.
 
 - Runs on **Stellar Testnet**. No mainnet, no real money, no live service.
 - Settlement runs between **AEGIS test accounts** — no payouts to real providers.
-- **Testnet USDC only**. The console is publicly readable; **intent submission is not**.
+- **Testnet USDC only**. The console and every read are **publicly readable** — §6.3 turns on a
+  stranger being able to check a decision without credentials. The two WRITE paths
+  (`POST /v1/intents`, `POST /v1/decisions/:id/resolve`) require
+  `Authorization: Bearer $AEGIS_WRITE_KEY`, and an **unset key disables writes rather than opening
+  them**. `resolve` needs this even though it is owner-only on chain: `require_owner` stops a leaked
+  operator key from standing in for the owner, but not an anonymous HTTP caller, because the gateway
+  holds `OWNER_SECRET` and signs as the owner for whoever reaches the endpoint. The contract gate
+  defends the key hierarchy; the bearer key defends the door. See `apps/gateway/src/writeAuth.ts`.
 - ⚠️ **Phase 1 trusts the executor key.** The memo commitment makes misuse *detectable*,
   not *impossible*. Phase 2 moves settlement into the contract — see `DECISIONS.md` #6.
 - ⚠️ **Phase 1 puts the operator key and the agent keys in one process.** `authorize` needs two

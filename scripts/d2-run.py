@@ -59,12 +59,21 @@ def expand(value):
     return value
 
 
+# The two write paths need a bearer key; reads do not. Taken from the environment so a
+# key never lands in this file or in the transcript it writes.
+WRITE_KEY = os.environ.get("AEGIS_WRITE_KEY", "").strip()
+
+
 def http_json(method: str, url: str, body=None, timeout: int = 120):
     data = None if body is None else json.dumps(body).encode("utf-8")
     req = urllib.request.Request(url, data=data, method=method)
     if data is not None:
         req.add_header("Content-Type", "application/json")
     req.add_header("Accept", "application/json")
+    # Only writes are gated. Sending it on a read would be harmless but would put the
+    # key in more places than it needs to be.
+    if method.upper() not in ("GET", "HEAD") and WRITE_KEY:
+        req.add_header("Authorization", f"Bearer {WRITE_KEY}")
     started = time.perf_counter()
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
