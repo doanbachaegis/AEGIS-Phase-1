@@ -566,10 +566,24 @@ index — so at higher volume it would need a cursor. When it stops at that cap 
 an absence found that way is not proof of absence. A miss never contradicts `settled`, which is read
 from the contract. Bounds in full: `d4-results.md` §B.
 
-**2. Scenario 6 (`AgentRevoked`) is not demonstrated in the D2/D3 pack**, only in D1. Demonstrating
-it through the gateway would mean revoking `agent-1`, ending its usefulness for the rest of the
-D2/D3 evidence. It belongs with the D1 contract evidence, where disposable agent identities can be
-revoked — and there it is exercised ten times.
+**2. Two reason codes have no live demonstration through the gateway, and one has none anywhere.**
+`AgentRevoked` (4) is on chain ten times in D1 but never on the gateway path; `OwnerRejected` (7) is
+the reverse, exercised through `resolve()` on `s15`; `WindowCapExceeded` (5) appears in neither.
+
+*Consequence, precisely:* closing `AgentRevoked` through the gateway means revoking `agent-1`, and
+`revoke_agent` does **not** bump the policy version — only `set_policy` does. `Policy.status` would
+flip to `Revoked` under an unchanged `version: 1`, which makes the console's own caveat — *"still v1
+— the same version that produced this decision… the values below are therefore the ones that were
+actually applied"* — false on all ten settlement pages, the exact pages §6.1 D4 sends a reviewer to.
+There is no un-revoke, and restoring through `set_policy` bumps to v2 and puts a mismatch caveat on
+every decision instead. The refusal happens in the contract regardless; the gateway's part is
+relaying a code it already relays for five others across the twenty runs.
+
+`WindowCapExceeded` is the one with no live decision at all: D2 spent 91.095679 of a 200.0000000
+USDC window and never approached the cap. It has two contract unit tests and the SOW's §5.2 enum
+never names it, but neither is a decision on the ledger and this pack does not count them as one.
+That one would be cheap and reversible to close — the tumbling window clears itself — and it is left
+open rather than closed quietly. Full reasoning in `INDEX.md` gap 2.
 
 **3. The finality median exceeds §7.2's "< 2 sec" figure, and always will.** Median POST → verdict
 is **713 ms**; median POST → finality is **5628 ms**. Stellar closes a ledger roughly every 5

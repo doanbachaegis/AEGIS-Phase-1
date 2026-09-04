@@ -149,12 +149,38 @@ transaction's real `MEMO_HASH` against the `memo_hash()` **the page rendered**, 
 confirms that the hash the browser found equals the one in the settlement receipt. Those two routes
 never share a source.
 
-**2. Scenario 6 (`AgentRevoked`) is demonstrated in D1 only, not through the gateway.**
+**2. Two reason codes have no live demonstration through the gateway, and one has none anywhere.**
 
-Demonstrating it in the D2/D3 run would mean revoking `agent-1`, which would end its usefulness for
-the rest of that evidence and change the policy version mid-run. It belongs with the D1 contract
-evidence, where disposable agent identities can be revoked — and there it is exercised ten times,
-including five runs that break a second rule simultaneously to prove revocation outranks everything.
+| Reason code | On chain (D1) | Through the gateway (D2/D3) |
+|---|---|---|
+| `AgentRevoked` (4) | 10 runs, 10 passed | — |
+| `OwnerRejected` (7) | — | `s15`, `resolve()` → reject (`d2-approval-trail.md`) |
+| `WindowCapExceeded` (5) | — | — |
+
+**`AgentRevoked` through the gateway is deliberately not closed.** Doing it means revoking
+`agent-1`, and `revoke_agent` **does not bump the policy version** — only `set_policy` does
+(`contracts/authorization/src/lib.rs`). `Policy.status` would flip `Active` → `Revoked` while
+`version` stayed at 1, and the console's own caveat, on every one of `agent-1`'s pages, reads:
+*"get_policy returns the CURRENT policy, which is still v1 — the same version that produced this
+decision. The values below are therefore the ones that were actually applied."* That sentence would
+become false on all ten settlement pages — the exact pages §6.1 D4 sends a reviewer to. There is no
+un-revoke: restoring through `set_policy` bumps to v2 and puts a version-mismatch caveat on every
+decision instead. Both exits are worse than the gap.
+
+What would be proven is also small. The refusal happens in the **contract**, which already answered
+`AgentRevoked` ten times in D1; the gateway's part is relaying a reason code, which it does for five
+other codes across the twenty D2 runs. §6.1 D2's artifact list asks for a result table over 20 runs
+and a median decision time, not for each §5.2 scenario on the gateway path, and that table is 20/20.
+
+**`WindowCapExceeded` is the one with no live decision at all.** The D2 run spent 91.095679 of
+`agent-1`'s 200.0000000 USDC window and never approached the cap, so no run in this pack produced
+code 5. It holds two contract unit tests (`contracts/authorization/src/test.rs`) and the SOW's §5.2
+reason-code enum never names it — see `DECISIONS.md` #3 — but neither of those is a decision on the
+ledger, and this file does not count them as one. Unlike the case above it would be cheap and
+reversible to close: spend past the cap through the gateway, and the tumbling window clears itself
+after 86400 seconds without any admin call. It is recorded open rather than closed quietly, because
+the cumulative budget is the part that makes this a budget system rather than a per-transaction
+limit.
 
 ---
 
