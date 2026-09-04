@@ -31,7 +31,7 @@ export const MERCHANT = Keypair.fromRawEd25519Seed(Buffer.alloc(32, 3));
 export const AGENT = Keypair.fromRawEd25519Seed(Buffer.alloc(32, 4));
 export const ISSUER = Keypair.fromRawEd25519Seed(Buffer.alloc(32, 5));
 
-export const CONTRACT_ID = "CAAD6727VZDKH77IVZJ526B3YENMMU26DGHUEU3B4D6KK3JS5YTNTRPP";
+export const CONTRACT_ID = "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA";
 
 /** Derived, exactly as the executor derives it — so the ASSET_MISMATCH gate is real. */
 export const sacFor = (code: string, issuer: string): string =>

@@ -18,7 +18,7 @@ const valid = {
   version: RECEIPT_VERSION,
   network: {
     passphrase: "Test SDF Network ; September 2015",
-    contract_id: "CAAD6727VZDKH77IVZJ526B3YENMMU26DGHUEU3B4D6KK3JS5YTNTRPP",
+    contract_id: "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA",
     horizon: "https://horizon-testnet.stellar.org",
     rpc: "https://soroban-testnet.stellar.org",
   },

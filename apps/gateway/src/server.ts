@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { pathToFileURL } from "node:url";
+import cors from "@fastify/cors";
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import { canonicalIntent, formatAmount, intentHash, parseAmount, toHex } from "@aegis/canonical";
 import { Verdict } from "@aegis/bindings";
@@ -11,6 +12,7 @@ import {
   type ChainDecision,
 } from "./chain.js";
 import { loadConfig, loadEnvFile, type GatewayConfig } from "./config.js";
+import { corsOptions } from "./cors.js";
 import { asContractFailure, httpForContractFailure, reasonName, verdictName } from "./contractErrors.js";
 import { openStore, type IntentStore } from "./db/store.js";
 import { jsonSafe } from "./json.js";
@@ -790,6 +792,14 @@ export async function buildServer(config: GatewayConfig): Promise<FastifyInstanc
     },
   });
 
+  // Before any route: the console is served from a different origin than this
+  // API, and a preflight has to be answered by the plugin rather than by a
+  // route. Skipped entirely when `CORS_ORIGIN` is unset, which leaves the
+  // gateway same-origin-only (see cors.ts).
+  if (config.corsOrigins.length > 0) {
+    await app.register(cors, corsOptions(config.corsOrigins));
+  }
+
   const registry = Registry.load(config.registryPath, config.servicesPath, config.contractId);
   const agentSigner = new InProcessAgentSigner(config.agentSecrets, config.networkPassphrase);
 
@@ -830,6 +840,9 @@ export async function buildServer(config: GatewayConfig): Promise<FastifyInstanc
       agents: agentSigner.addresses.length,
       registry_version: registry.registryVersion,
       database: store.mode,
+      // A console that cannot reach this API looks identical to a console
+      // pointed at the wrong URL, so the allowlist is stated at boot.
+      cors: config.corsOrigins.length > 0 ? config.corsOrigins.join(",") : "disabled",
     },
     "gateway ready",
   );

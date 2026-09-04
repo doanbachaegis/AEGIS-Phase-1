@@ -1,0 +1,44 @@
+# Build context exclusions.
+#
+# Two different jobs are done here, and only one of them is about speed:
+#
+#   1. Keep host build output from overwriting what the image builds itself.
+#   2. Keep things that must never be baked into a distributable image OUT of
+#      the layer cache — where they would survive even if a later stage deleted
+#      them.
+#
+# (2) is the one worth being careful about. Everything below the "never ship"
+# heading is there for that reason, not to save bytes.
+
+# --- host build output: the image rebuilds all of this from source ---
+node_modules
+**/node_modules
+**/dist
+target
+
+# --- not needed to build or run the service ---
+.git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+
+# --- never ship ---
+
+# Real secrets. Excluded from the CONTEXT, not merely from the final image:
+# a `.env` copied in an early layer stays readable in that layer forever.
+#
+# There is a second reason beyond secrecy. The gateway and the executor both
+# call `process.loadEnvFile()` on a `.env` sitting next to them, so a stray
+# `.env` in the image would silently take precedence over the variables Railway
+# injects — a deploy that ignores its own configuration and gives no sign of it.
+.env
+.env.*
+!.env.example
+
+# The client's SOW. Deliberately kept out of git (see .gitignore) and equally
+# deliberately kept out of any image that might be pushed to a registry.
+docs/*.pdf
+
+# Generated evidence artifacts. Reviewer-facing output, not service input.
+evidence

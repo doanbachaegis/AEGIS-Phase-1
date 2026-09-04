@@ -15,6 +15,7 @@
   "dependencies": {
     "@aegis/bindings": "workspace:*",
     "@aegis/canonical": "workspace:*",
+    "@fastify/cors": "^11.3.0",
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.12.1",
     "postgres": "^3.4.9",

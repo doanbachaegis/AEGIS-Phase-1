@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { Keypair } from "@aegis/bindings";
+import { parseCorsOrigins } from "./cors.js";
 
 /**
  * Gateway configuration, resolved once at boot.
@@ -44,6 +45,11 @@ export interface GatewayConfig {
   registryPath: string;
   /** How long to wait for a submitted transaction to close before giving up. */
   txTimeoutSeconds: number;
+  /**
+   * Origins allowed to call this API from a browser (`CORS_ORIGIN`). Empty means
+   * CORS is not enabled at all — see `cors.ts` for why that default is safe.
+   */
+  corsOrigins: readonly string[];
 }
 
 const req = (env: NodeJS.ProcessEnv, name: string): string => {
@@ -128,5 +134,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): GatewayConfig 
       ? resolve(env.GATEWAY_REGISTRY_PATH)
       : resolve(import.meta.dirname, "../registry.json"),
     txTimeoutSeconds: Number(env.TX_TIMEOUT_SECONDS ?? 45),
+    corsOrigins: parseCorsOrigins(env.CORS_ORIGIN),
   };
 }
