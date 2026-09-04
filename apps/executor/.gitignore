@@ -1,0 +1,4 @@
+# Runtime settlement journal. Durable state, but MACHINE state — it is rebuilt
+# from the chain by `recover()`, never reviewed as evidence, and it contains a
+# per-machine view of in-flight envelopes. Nothing here belongs in git.
+.data/

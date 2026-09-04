@@ -11,7 +11,10 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@aegis/bindings": "workspace:*",
+    "@aegis/canonical": "workspace:*",
     "@tanstack/react-query": "^5.102.8",
+    "buffer": "6.0.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

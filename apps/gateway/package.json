@@ -5,16 +5,23 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@aegis/bindings": "workspace:*",
     "@aegis/canonical": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "fastify": "^5.12.1",
+    "postgres": "^3.4.9",
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1"
+    "@types/node": "^26.4.1",
+    "drizzle-kit": "^0.31.10"
   }
 }

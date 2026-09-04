@@ -51,3 +51,29 @@ export const IntentRequest = z.object({
 });
 
 export type IntentRequest = z.infer<typeof IntentRequest>;
+
+/**
+ * POST /v1/decisions/:id/resolve — the human approver path (SOW §4.1 D2, §6.3).
+ *
+ * `approve` is required and has no default. A missing field must not be read as
+ * "approve": the whole point of the escalation is that somebody said so.
+ */
+export const ResolveRequest = z.object({
+  approve: z.boolean(),
+  /** free-text note for the transcript; not hashed, not sent on-chain */
+  note: bounded(1024).optional(),
+});
+
+export type ResolveRequest = z.infer<typeof ResolveRequest>;
+
+/** 32-byte lowercase hex — `decision_id` and `intent_hash` are both this shape. */
+export const Hash32Hex = z
+  .string()
+  .regex(/^[0-9a-f]{64}$/, "must be 64 lowercase hex characters (32 bytes)");
+
+export const DecisionIdParam = z.object({ id: Hash32Hex });
+export const IntentHashParam = z.object({ intent_hash: Hash32Hex });
+
+export const ApprovalsQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});

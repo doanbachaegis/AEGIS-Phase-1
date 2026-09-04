@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./amount": {
+      "types": "./dist/amount.d.ts",
+      "default": "./dist/amount.js"
     }
   },
   "files": [
