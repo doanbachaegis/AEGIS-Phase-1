@@ -1,6 +1,6 @@
 # D2/D3 — the four refusals
 
-Generated 2026-09-04T07:26:14Z
+Generated 2026-09-04T12:36:52Z
 
 SOW §6.1 D2 requires two attempts to resolve an already-resolved decision and two attempts to
 hand the executor an intent with no approved decision. **All four had to be refused, and the
@@ -52,12 +52,12 @@ SOURCE_UNAVAILABLE: the contract returned No decision is stored under this decis
 reader sees if the persistent entry has been archived and not restored. from get_decision
 ```
 
-The cause is visible in the message. `apps/executor/src/chain.ts` decides whether a failure is a
-*not-found answer* or an *unreachable source* by looking for the string `"DecisionNotFound"`
-(`const NOT_FOUND`, and `mentionsNotFound`) — the variant's **name**. What the generated client
-actually surfaces as `message` is the variant's **doc comment** (`"No decision is stored under
-this decision_id…"`), so the test never matches and the answer falls through to the
-`SOURCE_UNAVAILABLE` branch.
+The cause was visible in the message. At the time of this run `apps/executor/src/chain.ts`
+decided whether a failure was a *not-found answer* or an *unreachable source* by looking for the
+string `"DecisionNotFound"` (`const NOT_FOUND`, and `mentionsNotFound`) — the variant's **name**.
+What the generated client actually surfaces as `message` is the variant's **doc comment**
+(`"No decision is stored under this decision_id…"`), so the test never matched and the answer fell
+through to the `SOURCE_UNAVAILABLE` branch.
 
 Consequence, stated precisely: **the settlement is still refused and no money moves** — this is not
 a safety defect. But `SOURCE_UNAVAILABLE` means *"a public data source could not be reached"*, i.e.
@@ -71,5 +71,26 @@ project's own stated rule.
 misclassify the same way. It never gets the chance: `getDecision` runs first and the gate refuses
 before `memo_hash()` is ever called. So one root cause, one observable symptom.
 
-Not fixed here: `apps/**` is out of scope for this evidence run, and a one-line change to a
-trust-boundary file is worth a review rather than a drive-by edit.
+**Fixed before the code was delivered.** It was left alone during the run — `apps/**` is out of
+scope for an evidence run, and a change to a trust-boundary file is worth a review rather than a
+drive-by edit — and then corrected under review. `chain.ts` now classifies on the error's numeric
+discriminant, which the ABI owns, rather than on a string the SDK builds from a doc comment:
+
+```ts
+const NOT_FOUND_DISCRIMINANT = 6;
+const CONTRACT_ERROR = /Error\(Contract, #(\d+)\)/;
+```
+
+A renumbered error therefore moves with the ABI instead of silently changing what the executor
+claims. The same attempt, re-run against the live contract after the fix:
+
+```
+$ node apps/executor/dist/cli.js settle --decision 0000…0000 --dry-run
+DECISION_NOT_FOUND: the contract holds no decision under this id
+  ^ refused by the decision itself — re-running changes nothing until the chain does
+exit 1
+```
+
+That second line is the retry-loop concern above, answered by the code. `settle.test.ts` pins the
+classification so it cannot regress silently, and the console applies the same discriminant rule
+for the same reason (`apps/console/src/chain.ts`).

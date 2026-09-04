@@ -149,35 +149,40 @@ transaction's real `MEMO_HASH` against the `memo_hash()` **the page rendered**, 
 confirms that the hash the browser found equals the one in the settlement receipt. Those two routes
 never share a source.
 
-**2. `apps/gateway/registry.json` pins a stale contract ID.**
-
-It still names the pre-redeploy contract (`CAAD6727…`) while `.env`, `services.json` and the console
-point at the current one. `Registry.load()` refuses to boot on that mismatch — correctly. The
-evidence run worked around it with a corrected copy (`d2-gateway-registry.effective.json`, kept here
-so it can be diffed against the committed file, changing `network.contract_id` and nothing else)
-rather than editing `apps/**` mid-run. **The fix belongs in the committed file.**
-
-**3. One defect in the executor's error classification, found and not papered over.**
-
-Settling a non-existent `decision_id` is correctly refused with no payment, but is classified
-`SOURCE_UNAVAILABLE` (*retry later*) instead of `DECISION_NOT_FOUND` (*the chain answered, and the
-answer is no*). Not a safety defect — no money moves either way — but a retry loop would spin
-forever. Root cause, consequence and the one-line location are in `d2-refusals.md`; summarised in
-`README.md` Part 7.
-
-**4. `tools/verifier/README.md` has a stale "Status" section.**
-
-It still states that the Horizon-side checks "have no live subject yet" because "the executor is
-still a skeleton". That was true when written and is now false — ten settlements exist and all ten
-verify. The tool is correct; only its README is out of date, and the example receipt in it shows the
-old contract ID.
-
-**5. Scenario 6 (`AgentRevoked`) is demonstrated in D1 only, not through the gateway.**
+**2. Scenario 6 (`AgentRevoked`) is demonstrated in D1 only, not through the gateway.**
 
 Demonstrating it in the D2/D3 run would mean revoking `agent-1`, which would end its usefulness for
 the rest of that evidence and change the policy version mid-run. It belongs with the D1 contract
 evidence, where disposable agent identities can be revoked — and there it is exercised ten times,
 including five runs that break a second rule simultaneously to prove revocation outranks everything.
+
+---
+
+## Found by the evidence run, and fixed before delivery
+
+These were open when the artifacts above were produced, and each is written up in the file that
+found it. They are listed here because the write-ups describe the run, not the delivered code, and a
+reviewer reading them should not have to guess which is which.
+
+**Executor error classification.** Settling a non-existent `decision_id` was refused with no
+payment, but classified `SOURCE_UNAVAILABLE` (*retry later*) rather than `DECISION_NOT_FOUND` (*the
+chain answered, and the answer is no*) — a retry loop would have spun forever.
+`apps/executor/src/chain.ts` now classifies on the error's **numeric discriminant**, which the ABI
+owns, instead of a string test against the variant name that the SDK builds from a doc comment. The
+same attempt re-run against the live contract answers `DECISION_NOT_FOUND`, exit 1, with the line
+*"refused by the decision itself — re-running changes nothing until the chain does"*. Pinned by
+`apps/executor/test/settle.test.ts`. Full write-up, before and after: `d2-refusals.md`.
+
+**Stale contract ID in the gateway registry.** During the D2/D3 run the working tree's
+`apps/gateway/registry.json` pinned the pre-redeploy contract, and `scripts/d2-gateway.sh` worked
+around it with a corrected copy (`d2-gateway-registry.effective.json`) rather than editing `apps/**`
+mid-run. The committed file was corrected before it was committed — `git log -S` finds the
+pre-redeploy ID in no revision of it. The one place it genuinely survived was
+`apps/console/.env.example`, the file a developer copies; that is now the current contract too.
+
+**`tools/verifier/README.md` "Status" section.** It claimed the Horizon-side checks had *"no live
+subject yet"* because *"the executor is still a skeleton"*. Ten settlements now verify in `--strict`
+mode, and the section says so.
 
 ---
 

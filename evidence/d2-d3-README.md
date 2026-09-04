@@ -1,6 +1,6 @@
 # D2 + D3 evidence pack
 
-Generated 2026-09-04T07:26:14Z · Stellar **testnet** · contract [`CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA`](https://stellar.expert/explorer/testnet/contract/CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA)
+Generated 2026-09-04T12:36:52Z · Stellar **testnet** · contract [`CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA`](https://stellar.expert/explorer/testnet/contract/CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA)
 
 Everything SOW §6.1 asks for from D2 (Intent Gateway & Decision Binding) and D3 (Decision-Gated
 Settlement), produced in one run against the live testnet deployment.
@@ -65,12 +65,15 @@ declared there, not embedded in code, so what was intended can be diffed against
   reviewer reads on chain today are the ones every decision here was judged against.
 - **A second evidence run (D1) was live on the same contract**, using different agent identities. No
   submission or settlement in this pack needed a retry because of it.
-- **`apps/gateway/registry.json` still pins the pre-redeploy contract** (`CAAD6727…`), while `.env`,
-  `services.json` and the console all point at the current one. `Registry.load()` refuses to boot on
-  that mismatch — correctly. Rather than edit `apps/**` during an evidence run, `scripts/d2-gateway.sh`
-  writes a corrected copy to `d2-gateway-registry.effective.json`, changing `network.contract_id` and
-  nothing else, and points the gateway at it with `GATEWAY_REGISTRY_PATH`. The copy is kept here so it
-  can be diffed against the committed file. **The real fix belongs in `apps/gateway/registry.json`.**
+- **`apps/gateway/registry.json` pinned the pre-redeploy contract during this run** (`CAAD6727…`),
+  while `.env`, `services.json` and the console all pointed at the current one. `Registry.load()`
+  refuses to boot on that mismatch — correctly. Rather than edit `apps/**` mid-run,
+  `scripts/d2-gateway.sh` wrote a corrected copy to `d2-gateway-registry.effective.json`, changing
+  `network.contract_id` and nothing else, and pointed the gateway at it with `GATEWAY_REGISTRY_PATH`.
+  The copy is kept here so it can be diffed against the committed file. **The committed file was
+  corrected before it was committed**: `apps/gateway/registry.json` has only ever held the current
+  contract in git history, so the workaround above describes the working tree during the run, not
+  the delivered repository.
 - **The gateway ran with a real Postgres**, not degraded, so `purpose` and `client_ref` are recoverable
   through `GET /v1/intents/:hash` as well as from the transcript. It was a throwaway instance on
   `DATABASE_URL` with `pnpm --filter @aegis/gateway db:migrate` applied, and it has since been shut
@@ -83,6 +86,20 @@ declared there, not embedded in code, so what was intended can be diffed against
 ## What did not come out clean
 
 One defect, found by an attempt that was not required: settling a `decision_id` that does not exist
-on chain is refused — correctly, no payment — but classified `SOURCE_UNAVAILABLE` (*retry later*)
+on chain was refused — correctly, no payment — but classified `SOURCE_UNAVAILABLE` (*retry later*)
 instead of `DECISION_NOT_FOUND` (*the chain answered, and the answer is no*). Cause, consequence and
 the one-line location are in `d2-refusals.md`. Nothing was papered over to keep a table green.
+
+**It is fixed in the delivered code.** `apps/executor/src/chain.ts` now classifies on the error's
+numeric discriminant instead of a string test against the variant name, and the same attempt
+re-run against the live contract answers:
+
+```
+$ node apps/executor/dist/cli.js settle --decision 0000…0000 --dry-run
+DECISION_NOT_FOUND: the contract holds no decision under this id
+  ^ refused by the decision itself — re-running changes nothing until the chain does
+exit 1
+```
+
+The second line is the retry-loop concern above, answered by the code rather than by a note.
+`apps/executor/test/settle.test.ts` pins it so it cannot regress silently.

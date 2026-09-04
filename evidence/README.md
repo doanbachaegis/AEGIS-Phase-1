@@ -551,20 +551,7 @@ returned. All ten render; the search is bounded, and its bounds are stated in `d
 
 Nothing here was papered over to keep a table green.
 
-**1. One real defect in the executor's error classification.** An unrequired test — settling a
-`decision_id` that does not exist on chain — was correctly **refused with no payment**, but was
-classified `SOURCE_UNAVAILABLE` (*a data source could not be reached; retry later*) instead of
-`DECISION_NOT_FOUND` (*the chain answered, and the answer is no*). Root cause: `apps/executor/src/chain.ts`
-tests for the error variant's **name** while the generated client surfaces the variant's **doc
-comment**, so the test never matches and the answer falls through to the wrong branch.
-
-*Consequence, precisely:* **not a safety defect** — the settlement is refused and no money moves.
-But an operator or a recovery loop that retries on `SOURCE_UNAVAILABLE` would retry forever against
-a decision that will never exist. It is also inconsistent with this project's own stated rule: the
-verifier draws exactly this distinction on its exit codes, where `3 UNAVAILABLE` is emphatically not
-a pass. Full write-up in `d2-refusals.md`.
-
-**2. The console's settlement link comes from a bounded search, not from a stored field.** The
+**1. The console's settlement link comes from a bounded search, not from a stored field.** The
 contract records **that** a decision was settled and never **which** transaction did it, so there is
 no `settlement_tx_hash` to read on-chain. Rather than have the AEGIS API name the transaction — which
 would ask a reviewer to trust the party under review to name its own receipt, and which this
@@ -579,29 +566,45 @@ index — so at higher volume it would need a cursor. When it stops at that cap 
 an absence found that way is not proof of absence. A miss never contradicts `settled`, which is read
 from the contract. Bounds in full: `d4-results.md` §B.
 
-**3. A stale contract ID committed in the gateway registry.** `apps/gateway/registry.json` still
-pins the pre-redeploy contract (`CAAD6727…`) while `.env`, `services.json` and the console point at
-the current one. `Registry.load()` refuses to boot on that mismatch — correctly. The evidence run
-worked around it with a corrected copy (`d2-gateway-registry.effective.json`, kept here so it can be
-diffed) rather than editing `apps/**` mid-run. **The real fix belongs in the committed file.**
-
-**4. `tools/verifier/README.md` has a stale "Status" section.** It still says the Horizon-side
-checks "have no live subject yet" because "the executor is still a skeleton". That was true when it
-was written and is now false: ten settlements exist and all ten verify. The tool itself is correct —
-only its README is out of date. The example receipt in that file also shows the old contract ID.
-
-**5. Scenario 6 (`AgentRevoked`) is not demonstrated in the D2/D3 pack**, only in D1. Demonstrating
+**2. Scenario 6 (`AgentRevoked`) is not demonstrated in the D2/D3 pack**, only in D1. Demonstrating
 it through the gateway would mean revoking `agent-1`, ending its usefulness for the rest of the
 D2/D3 evidence. It belongs with the D1 contract evidence, where disposable agent identities can be
 revoked — and there it is exercised ten times.
 
-**6. The finality median exceeds §7.2's "< 2 sec" figure, and always will.** Median POST → verdict
+**3. The finality median exceeds §7.2's "< 2 sec" figure, and always will.** Median POST → verdict
 is **713 ms**; median POST → finality is **5628 ms**. Stellar closes a ledger roughly every 5
 seconds and no gateway tuning changes that. §7.2 scopes that figure as a roadmap target rather than
 an acceptance criterion, and both numbers are reported rather than the flattering one. Nothing was
 tuned to improve either.
 
 ---
+
+### Found here, and fixed before delivery
+
+Three more findings were open when these artifacts were produced and are closed in the code being
+delivered. Their full write-ups stay where they were found — a pack that deletes its own findings is
+worth less than one that carries them — so each is summarised here with the file that has the detail,
+rather than left for a reviewer to reconcile against the repo.
+
+**The executor's error classification.** Settling a non-existent `decision_id` was refused with no
+payment but classified `SOURCE_UNAVAILABLE` (*retry later*) instead of `DECISION_NOT_FOUND` (*the
+chain answered, and the answer is no*), so a recovery loop would have retried forever.
+`apps/executor/src/chain.ts` now classifies on the error's **numeric discriminant**, which the ABI
+owns, rather than on a string test against the variant name — which the SDK builds from a doc
+comment, not from the name at all. Re-run against the live contract, the same attempt answers
+`DECISION_NOT_FOUND`, exit 1, and says *"refused by the decision itself — re-running changes nothing
+until the chain does"*. `apps/executor/test/settle.test.ts` pins it. Before and after:
+`d2-refusals.md`.
+
+**The stale contract ID.** `apps/gateway/registry.json` pinned the pre-redeploy contract in the
+working tree during the D2/D3 run, which `scripts/d2-gateway.sh` worked around with a corrected copy
+rather than editing `apps/**` mid-run. It was corrected before it was ever committed: `git log -S`
+finds that ID in no revision of the file. Where it genuinely survived was
+`apps/console/.env.example` — the file a developer copies — and that now names the current contract.
+
+**`tools/verifier/README.md`.** Its "Status" section claimed the Horizon-side checks had no live
+subject because the executor was still a skeleton. Ten settlements verify in `--strict` mode, and
+the section says so.
 
 ## Where everything lives
 
