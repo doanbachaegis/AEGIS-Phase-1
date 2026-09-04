@@ -84,21 +84,30 @@ export function HomePage() {
         <ul className="space-y-3 text-sm text-slate-700">
           <li>
             verdict · reason code · policy version · amount · asset · settled{" "}
-            <SourceTag chain />
+            <SourceTag source="chain" />
             <div className="text-slate-500">
               read from the contract by simulating <code className="font-mono">get_decision</code>{" "}
               / <code className="font-mono">decision_by_intent</code>.
             </div>
           </li>
           <li>
-            <code className="font-mono">memo_hash()</code> <SourceTag chain />
+            <code className="font-mono">memo_hash()</code> <SourceTag source="chain" />
             <div className="text-slate-500">
               computed by the contract, not recomputed here — it is what a settle transaction's
               MEMO_HASH is checked against.
             </div>
           </li>
           <li>
-            purpose · client_ref · settlement transaction hash <SourceTag chain={false} />
+            settlement transaction <SourceTag source="ledger" />
+            <div className="text-slate-500">
+              the contract never records WHICH transaction paid, so the console searches the
+              public ledger through Horizon for a transaction carrying the{" "}
+              <code className="font-mono">memo_hash()</code> above. Derived from public data,
+              not asserted by AEGIS — and reproducible without this console.
+            </div>
+          </li>
+          <li>
+            purpose · client_ref <SourceTag source="api" />
             <div className="text-slate-500">
               supplied by the AEGIS API. Never mixed with the fields above.
             </div>

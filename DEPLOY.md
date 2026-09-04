@@ -168,6 +168,8 @@ read at startup and it is not read from the variables in §3.3.
 | `VITE_STELLAR_NETWORK_PASSPHRASE` | ✅ | `Test SDF Network ; September 2015` — **no quotes**, same rule as §3.3 |
 | `VITE_CONTRACT_ID` | ✅ | must match `CONTRACT_ID` above |
 | `VITE_USDC_SAC_ADDRESS` | | lets the console print "USDC (testnet)" beside the raw SAC address |
+| `VITE_HORIZON_URL` | | defaults to `https://horizon-testnet.stellar.org` |
+| `VITE_SETTLEMENT_ACCOUNTS` | | comma-separated `G...` accounts to search for the settlement transaction — the executor and the payee from `services.json`. Unset means the console shows no transaction link; it never reports a decision as unsettled on that basis |
 | `VITE_STELLAR_EXPERT_NETWORK` | | defaults to `testnet` |
 | `VITE_SAMPLE_INTENTS` | | comma-separated intent references for the home page deep links |
 | `VITE_AEGIS_API_URL` | | **leave unset.** See §6 |

@@ -33,6 +33,17 @@ export function requireEnv(name: string, value: string | undefined): string {
 /** Stellar strkey for a contract: 'C' + 55 base32 characters. */
 const CONTRACT_ID = /^C[A-Z2-7]{55}$/;
 
+/** Stellar strkey for an account: 'G' + 55 base32 characters. */
+const ACCOUNT_ID = /^G[A-Z2-7]{55}$/;
+
+/**
+ * Horizon for the public testnet. Defaulted rather than required because it is not a
+ * choice a reviewer should have to make, and because a missing value must never take
+ * down the page: everything authoritative comes from Soroban RPC, and Horizon only
+ * supplies the LINK to the settlement transaction (see ./horizon.ts).
+ */
+const DEFAULT_HORIZON_URL = "https://horizon-testnet.stellar.org";
+
 export interface ConsoleEnv {
   readonly rpcUrl: string;
   readonly networkPassphrase: string;
@@ -40,6 +51,18 @@ export interface ConsoleEnv {
   readonly stellarExpertNetwork: string;
   /** Null when unset — the console then prints the raw SAC address with no friendly name. */
   readonly usdcSacAddress: string | null;
+  /** Horizon REST base URL, no trailing slash. Public infrastructure, never an AEGIS service. */
+  readonly horizonUrl: string;
+  /**
+   * The accounts a settlement payment must touch — the published executor, and the payee
+   * from `services.json`. The console walks their history looking for the contract's own
+   * `memo_hash()`, which is how the settlement transaction link is DERIVED rather than
+   * taken on trust from the AEGIS database (see ./horizon.ts).
+   *
+   * Empty is a supported deployment: the settlement card then says the search was not
+   * configured instead of claiming a decision has no settlement.
+   */
+  readonly settlementAccounts: readonly string[];
   /**
    * Base URL of the AEGIS API, with no trailing slash.
    *
@@ -96,6 +119,17 @@ function readEnv(): ConsoleEnv {
     networkPassphrase,
     contractId,
     stellarExpertNetwork: optional(import.meta.env.VITE_STELLAR_EXPERT_NETWORK) ?? "testnet",
+    horizonUrl: (optional(import.meta.env.VITE_HORIZON_URL) ?? DEFAULT_HORIZON_URL).replace(
+      /\/+$/,
+      "",
+    ),
+    // Silently dropping a malformed entry is right here: these are hints for a SEARCH,
+    // and a typo must degrade the link to "not found" rather than throw a configuration
+    // screen over a page whose on-chain evidence is complete without it.
+    settlementAccounts: (optional(import.meta.env.VITE_SETTLEMENT_ACCOUNTS) ?? "")
+      .split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter((s) => ACCOUNT_ID.test(s)),
     usdcSacAddress: optional(import.meta.env.VITE_USDC_SAC_ADDRESS),
     // Trailing slashes stripped so the call sites can concatenate a rooted path.
     // Unset collapses to "", which is same-origin — see the field's comment.

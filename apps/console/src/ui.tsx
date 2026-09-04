@@ -3,26 +3,45 @@ import type { ErrorInfo, ReactNode } from "react";
 import { useLinkHandler } from "./router.js";
 
 /**
- * Clearly separates authoritative data (chain) from supplementary display data (AEGIS API).
+ * Where a value came from, which is the distinction §6.3 turns on.
  *
- * This is the two-tier distinction §6.3 turns on. Anything tagged "read from chain" was
- * simulated against Soroban RPC by the browser showing this page; anything tagged
- * "display only" came from the AEGIS database and proves nothing on its own.
+ * THREE tiers, not two. "chain" is the contract's own answer over Soroban RPC. "ledger"
+ * is public Stellar history read from Horizon — not an AEGIS service, reproducible by a
+ * stranger, but a search result rather than a stored field. "api" is the AEGIS database
+ * and proves nothing on its own. Collapsing the middle tier into either neighbour would
+ * be a false claim: the settlement transaction link is neither stored on-chain nor taken
+ * on trust from AEGIS.
  */
-export function SourceTag({ chain }: { chain: boolean }) {
-  return chain ? (
+export type FieldSource = "chain" | "ledger" | "api";
+
+const SOURCE: Record<FieldSource, { label: string; title: string; className: string }> = {
+  chain: {
+    label: "read from chain",
+    title:
+      "Read directly from the authorization contract over Soroban RPC. Reproducible by anyone with the contract ID.",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  ledger: {
+    label: "derived from ledger",
+    title:
+      "Found on the public Stellar ledger through Horizon, by searching for the memo the contract itself commits to. Not supplied by AEGIS, and reproducible by anyone.",
+    className: "bg-sky-100 text-sky-800",
+  },
+  api: {
+    label: "display only",
+    title: "Supplied by the AEGIS API. Not part of the on-chain evidence.",
+    className: "bg-slate-100 text-slate-600",
+  },
+};
+
+export function SourceTag({ source }: { source: FieldSource }) {
+  const tag = SOURCE[source];
+  return (
     <span
-      title="Read directly from the authorization contract over Soroban RPC. Reproducible by anyone with the contract ID."
-      className="text-xs rounded bg-emerald-100 text-emerald-800 px-1.5 py-0.5 align-middle whitespace-nowrap"
+      title={tag.title}
+      className={`text-xs rounded px-1.5 py-0.5 align-middle whitespace-nowrap ${tag.className}`}
     >
-      read from chain
-    </span>
-  ) : (
-    <span
-      title="Supplied by the AEGIS API. Not part of the on-chain evidence."
-      className="text-xs rounded bg-slate-100 text-slate-600 px-1.5 py-0.5 align-middle whitespace-nowrap"
-    >
-      display only
+      {tag.label}
     </span>
   );
 }
@@ -97,22 +116,29 @@ export function Card({
   );
 }
 
+/**
+ * The label column is a FIXED 13rem track so the values line up down a card. A fixed
+ * track does not grow, so the label side must be allowed to wrap inside it — `flex-wrap`
+ * lets the source tag drop to its own line, and `min-w-0` lets a long identifier break
+ * instead of spilling across the value. Without both, `resolved_policy_version` and its
+ * badge overrun the track and print on top of the value beside them.
+ */
 export function Field({
   label,
-  chain,
+  source,
   children,
 }: {
   label: string;
-  chain: boolean;
+  source: FieldSource;
   children: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-1 border-b border-slate-100 py-2 last:border-b-0 sm:grid-cols-[13rem_1fr] sm:gap-4">
-      <dt className="flex items-baseline gap-2 text-sm text-slate-600">
-        <span className="font-mono text-[0.8rem]">{label}</span>
-        <SourceTag chain={chain} />
+    <div className="grid grid-cols-1 gap-1 border-b border-slate-100 py-2 last:border-b-0 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-4">
+      <dt className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 text-sm text-slate-600">
+        <span className="font-mono text-[0.8rem] break-all">{label}</span>
+        <SourceTag source={source} />
       </dt>
-      <dd className="text-sm text-slate-900">{children}</dd>
+      <dd className="min-w-0 text-sm text-slate-900">{children}</dd>
     </div>
   );
 }

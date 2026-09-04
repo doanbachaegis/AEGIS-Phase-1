@@ -12,12 +12,45 @@ So the console **calls Soroban RPC directly** for everything that is authoritati
 | verdict, reason_code, original_reason_code, policy_version, resolved_policy_version, decision_id, intent_hash, agent, service_id, amount, asset, ledger_seq, resolved, settled | `get_decision()` / `decision_by_intent()` via Soroban RPC | **"read from chain"** |
 | memo_hash | `memo_hash()` — computed by the contract itself | **"read from chain"** |
 | approval_threshold, per_intent_cap, cumulative_window_cap, allowed_services, status | `get_policy()` / `get_window()` via Soroban RPC — but the **current** policy, see below | **"read from chain"**, with a caveat |
-| purpose, client_ref, settlement transaction hash | AEGIS API | "display only" |
+| settlement transaction, and its amount / asset / destination | Horizon — **searched for**, see below | **"derived from ledger"** |
+| purpose, client_ref | AEGIS API | "display only" |
 
 **No** `fetch('/api/intents/:id')` for the first group — doing that destroys the single
 strongest piece of evidence the whole project has. `src/chain.ts` contains no `fetch` to
 AEGIS at all; the non-authoritative fields live in `src/aegisApi.ts` and are rendered in
 their own section under their own tag.
+
+## The settlement link is derived, not asserted
+
+The contract records **that** a decision settled. It never records **which** Stellar
+transaction did it, so there is no `settlement_tx_hash` to read from the chain.
+
+The obvious fix — have the AEGIS API name the transaction — would ask a reviewer to trust
+the party under review to name its own receipt. So the console does not ask. `memo_hash()`
+is computed **by the contract** over `intent_hash ‖ policy_version ‖ decision_id`, and the
+settle transaction has to carry exactly those 32 bytes as its `MEMO_HASH`. `src/horizon.ts`
+therefore **searches** the published settlement accounts for a transaction carrying that
+memo — the same replay scan `tools/verifier` runs for check X3 — and the link the page
+renders is a **consequence of public data** rather than a claim.
+
+That keeps the §6.3 property intact. Horizon is Stellar infrastructure, not an AEGIS
+service; a reviewer can issue the same requests from a browser tab. It is a **third**
+provenance tier, not a relabelling of the other two, and it has its own tag for that
+reason: the value is neither stored on-chain nor supplied by AEGIS.
+
+Two consequences that must survive any edit to that file:
+
+- **A miss never contradicts `settled`.** `Decision.settled` is the contract's answer.
+  A scan that finds nothing is a statement about the *search*, and the page reports the
+  accounts it walked and whether it reached the end of their history.
+- **Two matches are not an error to resolve.** A decision settles once. If the memo
+  appears on two transactions the page lists both, because the discrepancy *is* the
+  finding.
+
+Configure it with `VITE_SETTLEMENT_ACCOUNTS` (the executor and payee from
+`services.json`) and optionally `VITE_HORIZON_URL`. Leave the accounts unset and the
+settlement card says the search was not configured — it never reports a decision as
+unsettled on that basis.
 
 ## No signer, by design
 
