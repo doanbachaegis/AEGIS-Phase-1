@@ -1,0 +1,60 @@
+
+AEGIS settlement verifier — public data only (Horizon + Soroban RPC)
+
+  transaction   6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c
+  receipt       /Users/tothanhthuong/Workplace/freelances/stellars/aegis/evidence/d3-receipts/19-s19-3c605cc0e1fe58e2.json
+  contract      CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA
+  Soroban RPC   https://soroban-testnet.stellar.org
+  Horizon       https://horizon-testnet.stellar.org
+  registry      /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json
+  network       Test SDF Network ; September 2015
+  mode          strict
+
+  PASS  receipt      the receipt is well-formed
+                     /Users/tothanhthuong/Workplace/freelances/stellars/aegis/evidence/d3-receipts/19-s19-3c605cc0e1fe58e2.json, schema aegis-receipt/1
+  PASS  receipt      the --tx argument is the transaction this receipt describes
+                     both name 6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c
+  PASS  registry     the contract queried is the one the published registry names
+                     CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA, per /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json
+  PASS  horizon      the transaction exists on the ledger and succeeded
+                     included in ledger 4496524 at 2026-09-04T07:16:47Z, successful == true
+  PASS  horizon      the transaction carries exactly one operation and it is a payment
+                     one operation of type "payment"
+  PASS  horizon      the transaction carries a 32-byte MEMO_HASH
+                     memo_type "hash", 32 bytes: b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573
+  PASS  soroban-rpc  the contract holds a decision under this decision_id
+                     read from the contract ID alone; authorized at ledger 4496447
+  PASS  soroban-rpc  the on-chain verdict is Approved
+                     verdict Approved, reason Ok
+  PASS  soroban-rpc  the decision is marked settled on chain
+                     settled == true
+  PASS  soroban-rpc  every claim in the receipt's chain block matches the on-chain decision
+                     all 7 fields agree
+  PASS  receipt      the memo_hash written in the receipt is the one on the ledger
+                     both are b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573
+  PASS  derived      the on-ledger memo IS sha256(intent_hash || policy_version || decision_id)
+                     recomputed locally from the decision's own fields: b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573
+  PASS  receipt      the receipt's 68-byte preimage hashes to the on-ledger memo
+                     sha256 of the receipt's preimage: b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573
+  PASS  soroban-rpc  the contract's own memo_hash() view equals the on-ledger memo
+                     computed in the contract, independently of this tool: b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573
+  PASS  horizon      the amount paid equals the amount the contract authorized
+                     12.3456789 = 123456789 stroops, exactly as authorized
+  PASS  derived      the asset paid derives to the SAC address the contract authorized
+                     USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 derives to CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA
+  PASS  registry     the payee is the published account for the decision's service_id
+                     anthropic-api -> GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY, per /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json
+  PASS  registry     the transaction was submitted by the published executor account
+                     GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3, per /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json
+  PASS  derived      decision_id == sha256("AEGIS-DECISION-v1" || intent_hash || policy_version)
+                     recomputed: 3c605cc0e1fe58e2e4583d94388d4013605f2ad75b2244083893b575f1a23147
+  PASS  soroban-rpc  mark_settled was written at or before the payment's ledger
+                     decision entry last written at ledger 4496523, payment in ledger 4496524
+  PASS  horizon      no other successful transaction carries this memo
+                     exactly one, and it is this one (scanned 2 account(s): GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3, GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY)
+
+  ────────────────────────────────────────────────────────────────────────
+  VERDICT: VERIFIED  —  21 passed, 0 failed, 0 unavailable  (exit 0)
+
+  Every property was checked against public data and holds. This payment is the
+  one the contract authorized.

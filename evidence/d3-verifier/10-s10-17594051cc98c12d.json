@@ -1,0 +1,169 @@
+{
+  "tool": "aegis-verify",
+  "verdict": "VERIFIED",
+  "exit_code": 0,
+  "transaction": "c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127",
+  "receipt": "/Users/tothanhthuong/Workplace/freelances/stellars/aegis/evidence/d3-receipts/10-s10-17594051cc98c12d.json",
+  "strict": true,
+  "resolved": {
+    "contract_id": "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA",
+    "rpc": "https://soroban-testnet.stellar.org",
+    "horizon": "https://horizon-testnet.stellar.org",
+    "registry": "/Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json",
+    "network_passphrase": "Test SDF Network ; September 2015"
+  },
+  "summary": {
+    "passed": 21,
+    "failed": 0,
+    "unavailable": 0
+  },
+  "checks": [
+    {
+      "id": "receipt.parse",
+      "source": "receipt",
+      "title": "the receipt is well-formed",
+      "status": "pass",
+      "detail": "/Users/tothanhthuong/Workplace/freelances/stellars/aegis/evidence/d3-receipts/10-s10-17594051cc98c12d.json, schema aegis-receipt/1"
+    },
+    {
+      "id": "receipt.tx_match",
+      "source": "receipt",
+      "title": "the --tx argument is the transaction this receipt describes",
+      "status": "pass",
+      "detail": "both name c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127"
+    },
+    {
+      "id": "registry.contract",
+      "source": "registry",
+      "title": "the contract queried is the one the published registry names",
+      "status": "pass",
+      "detail": "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA, per /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json"
+    },
+    {
+      "id": "horizon.tx_successful",
+      "source": "horizon",
+      "title": "the transaction exists on the ledger and succeeded",
+      "status": "pass",
+      "detail": "included in ledger 4496518 at 2026-09-04T07:16:17Z, successful == true"
+    },
+    {
+      "id": "horizon.single_payment",
+      "source": "horizon",
+      "title": "the transaction carries exactly one operation and it is a payment",
+      "status": "pass",
+      "detail": "one operation of type \"payment\""
+    },
+    {
+      "id": "horizon.memo_hash",
+      "source": "horizon",
+      "title": "the transaction carries a 32-byte MEMO_HASH",
+      "status": "pass",
+      "detail": "memo_type \"hash\", 32 bytes: c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a"
+    },
+    {
+      "id": "rpc.decision_found",
+      "source": "soroban-rpc",
+      "title": "the contract holds a decision under this decision_id",
+      "status": "pass",
+      "detail": "read from the contract ID alone; authorized at ledger 4496437"
+    },
+    {
+      "id": "rpc.verdict_approved",
+      "source": "soroban-rpc",
+      "title": "the on-chain verdict is Approved",
+      "status": "pass",
+      "detail": "verdict Approved, reason Ok"
+    },
+    {
+      "id": "rpc.settled",
+      "source": "soroban-rpc",
+      "title": "the decision is marked settled on chain",
+      "status": "pass",
+      "detail": "settled == true"
+    },
+    {
+      "id": "rpc.receipt_matches_decision",
+      "source": "soroban-rpc",
+      "title": "every claim in the receipt's chain block matches the on-chain decision",
+      "status": "pass",
+      "detail": "all 7 fields agree"
+    },
+    {
+      "id": "receipt.memo_hash",
+      "source": "receipt",
+      "title": "the memo_hash written in the receipt is the one on the ledger",
+      "status": "pass",
+      "detail": "both are c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a"
+    },
+    {
+      "id": "commitment.memo_matches",
+      "source": "derived",
+      "title": "the on-ledger memo IS sha256(intent_hash || policy_version || decision_id)",
+      "status": "pass",
+      "detail": "recomputed locally from the decision's own fields: c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a"
+    },
+    {
+      "id": "receipt.preimage",
+      "source": "receipt",
+      "title": "the receipt's 68-byte preimage hashes to the on-ledger memo",
+      "status": "pass",
+      "detail": "sha256 of the receipt's preimage: c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a"
+    },
+    {
+      "id": "rpc.contract_memo_hash",
+      "source": "soroban-rpc",
+      "title": "the contract's own memo_hash() view equals the on-ledger memo",
+      "status": "pass",
+      "detail": "computed in the contract, independently of this tool: c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a"
+    },
+    {
+      "id": "payment.amount",
+      "source": "horizon",
+      "title": "the amount paid equals the amount the contract authorized",
+      "status": "pass",
+      "detail": "30.0000000 = 300000000 stroops, exactly as authorized"
+    },
+    {
+      "id": "payment.asset",
+      "source": "derived",
+      "title": "the asset paid derives to the SAC address the contract authorized",
+      "status": "pass",
+      "detail": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5 derives to CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA"
+    },
+    {
+      "id": "payment.destination",
+      "source": "registry",
+      "title": "the payee is the published account for the decision's service_id",
+      "status": "pass",
+      "detail": "openai-api -> GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY, per /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json"
+    },
+    {
+      "id": "payment.source",
+      "source": "registry",
+      "title": "the transaction was submitted by the published executor account",
+      "status": "pass",
+      "detail": "GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3, per /Users/tothanhthuong/Workplace/freelances/stellars/aegis/services.json"
+    },
+    {
+      "id": "strict.decision_id",
+      "source": "derived",
+      "title": "decision_id == sha256(\"AEGIS-DECISION-v1\" || intent_hash || policy_version)",
+      "status": "pass",
+      "detail": "recomputed: 17594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0"
+    },
+    {
+      "id": "strict.settle_order",
+      "source": "soroban-rpc",
+      "title": "mark_settled was written at or before the payment's ledger",
+      "status": "pass",
+      "detail": "decision entry last written at ledger 4496517, payment in ledger 4496518"
+    },
+    {
+      "id": "replay.unique",
+      "source": "horizon",
+      "title": "no other successful transaction carries this memo",
+      "status": "pass",
+      "detail": "exactly one, and it is this one (scanned 2 account(s): GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3, GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY)"
+    }
+  ]
+}

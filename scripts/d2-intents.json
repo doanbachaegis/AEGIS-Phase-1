@@ -1,0 +1,347 @@
+{
+  "schema": "aegis.d2-run-plan.v1",
+  "purpose": "The 20 gateway submissions required by SOW 6.1 D2, plus the resolve steps that produce the scenario-5 pending-approval trail and the two already-resolved refusals. Declarative so the run is reproducible: scripts/d2-run.py executes this file top to bottom and writes evidence/d2-responses.ndjson.",
+  "agent_id": "agent-1",
+  "assets": {
+    "policy": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+    "non_policy": "EURC:GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY"
+  },
+  "policy_snapshot": {
+    "version": 1,
+    "per_intent_cap": "500000000",
+    "approval_threshold": "250000000",
+    "cumulative_window_cap": "2000000000",
+    "window_seconds": 86400,
+    "allowed_services": ["openai-api", "anthropic-api"],
+    "note": "Read from the chain before the run. Every expected verdict below is derived from these numbers; the arithmetic is in evidence/d2-window-budget.md."
+  },
+  "steps": [
+    {
+      "n": 1,
+      "case_id": "s01",
+      "kind": "intent",
+      "field_variation": "baseline: both optional fields populated",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "1.5",
+        "purpose": "Completion tokens for the nightly summarization batch",
+        "client_ref": "ref-d2-001"
+      }
+    },
+    {
+      "n": 2,
+      "case_id": "s02",
+      "kind": "intent",
+      "field_variation": "second allowed service",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "anthropic-api",
+        "asset": "policy",
+        "amount": "2.25",
+        "purpose": "Message API usage, support triage assistant",
+        "client_ref": "ref-d2-002"
+      }
+    },
+    {
+      "n": 3,
+      "case_id": "s03",
+      "kind": "intent",
+      "field_variation": "empty purpose (hashed as a zero-length string)",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "3",
+        "purpose": "",
+        "client_ref": "ref-d2-003"
+      }
+    },
+    {
+      "n": 4,
+      "case_id": "s04",
+      "kind": "intent",
+      "field_variation": "empty client_ref",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "anthropic-api",
+        "asset": "policy",
+        "amount": "4.5",
+        "purpose": "Embeddings backfill for the knowledge base",
+        "client_ref": ""
+      }
+    },
+    {
+      "n": 5,
+      "case_id": "s05",
+      "kind": "intent",
+      "field_variation": "both optional fields empty",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "5.0000000",
+        "purpose": "",
+        "client_ref": ""
+      }
+    },
+    {
+      "n": 6,
+      "case_id": "s06",
+      "kind": "intent",
+      "field_variation": "1024-byte purpose (canonical str16 field)",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "anthropic-api",
+        "asset": "policy",
+        "amount": "6.25",
+        "purpose": { "pattern": "Long-form purpose text used to exercise the two-byte length prefix of canonical field 5. ", "length": 1024 },
+        "client_ref": "ref-d2-006"
+      }
+    },
+    {
+      "n": 7,
+      "case_id": "s07",
+      "kind": "intent",
+      "field_variation": "255-byte client_ref (canonical str8 field at its maximum)",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": false,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "7.5",
+        "purpose": "Vision API frame analysis",
+        "client_ref": { "pattern": "ref-d2-007-", "length": 255 }
+      }
+    },
+    {
+      "n": 8,
+      "case_id": "s08",
+      "kind": "intent",
+      "field_variation": "whole-number amount",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": false,
+      "intent": {
+        "service_id": "anthropic-api",
+        "asset": "policy",
+        "amount": "8",
+        "purpose": "Batch classification of inbound tickets",
+        "client_ref": "ref-d2-008"
+      }
+    },
+    {
+      "n": 9,
+      "case_id": "s09",
+      "kind": "intent",
+      "field_variation": "amount just under the approval threshold band",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": false,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "9.75",
+        "purpose": "Fine-tuning evaluation run",
+        "client_ref": "ref-d2-009"
+      }
+    },
+    {
+      "n": 10,
+      "case_id": "s10",
+      "kind": "intent",
+      "field_variation": "amount above approval_threshold (25 USDC), below per_intent_cap (50 USDC)",
+      "expect": { "http": 202, "verdict": "RequiresApproval", "reason_code": "PendingApproval" },
+      "settle": true,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "30",
+        "purpose": "Quarterly model evaluation suite, requires human sign-off",
+        "client_ref": "ref-d2-010"
+      }
+    },
+    {
+      "n": 11,
+      "case_id": "s11",
+      "kind": "intent",
+      "field_variation": "amount above per_intent_cap",
+      "expect": { "http": 200, "verdict": "Rejected", "reason_code": "CapExceeded" },
+      "settle": false,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "75",
+        "purpose": "Oversized single request, expected to be capped",
+        "client_ref": "ref-d2-011"
+      }
+    },
+    {
+      "n": 12,
+      "case_id": "s12",
+      "kind": "intent",
+      "field_variation": "service_id outside Policy.allowed_services",
+      "expect": { "http": 200, "verdict": "Rejected", "reason_code": "ServiceNotAllowed" },
+      "settle": false,
+      "intent": {
+        "service_id": "aws-bedrock",
+        "asset": "policy",
+        "amount": "5",
+        "purpose": "Service outside the agent whitelist",
+        "client_ref": "ref-d2-012"
+      }
+    },
+    {
+      "n": 13,
+      "case_id": "s13",
+      "kind": "intent",
+      "field_variation": "asset that is not Policy.allowed_asset",
+      "expect": { "http": 200, "verdict": "Rejected", "reason_code": "AssetMismatch" },
+      "settle": false,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "non_policy",
+        "amount": "5",
+        "purpose": "Non-policy asset, judged on chain rather than filtered locally",
+        "client_ref": "ref-d2-013"
+      }
+    },
+    {
+      "n": 14,
+      "case_id": "s14",
+      "kind": "intent",
+      "field_variation": "second escalation, deliberately left unresolved",
+      "expect": { "http": 202, "verdict": "RequiresApproval", "reason_code": "PendingApproval" },
+      "settle": false,
+      "intent": {
+        "service_id": "anthropic-api",
+        "asset": "policy",
+        "amount": "26",
+        "purpose": "Escalation left open so the approval queue is non-empty at the end of the run",
+        "client_ref": "ref-d2-014"
+      }
+    },
+    {
+      "n": 15,
+      "case_id": "s15",
+      "kind": "intent",
+      "field_variation": "third escalation, to be refused by the owner",
+      "expect": { "http": 202, "verdict": "RequiresApproval", "reason_code": "PendingApproval" },
+      "settle": false,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "27.5",
+        "purpose": "Escalation the owner declines",
+        "client_ref": "ref-d2-015"
+      }
+    },
+    {
+      "n": 16,
+      "case_id": "s16",
+      "kind": "intent",
+      "replay_of": "s01",
+      "field_variation": "byte-identical resubmission of s01 (idempotency on intent_hash)",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok", "same_decision_as": "s01" },
+      "settle": false
+    },
+    {
+      "n": 17,
+      "case_id": "s17",
+      "kind": "intent",
+      "replay_of": "s11",
+      "field_variation": "byte-identical resubmission of a REJECTED intent",
+      "expect": { "http": 200, "verdict": "Rejected", "reason_code": "CapExceeded", "same_decision_as": "s11" },
+      "settle": false
+    },
+    {
+      "n": 18,
+      "case_id": "s18",
+      "kind": "intent",
+      "field_variation": "one stroop, the smallest representable amount",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "0.0000001",
+        "purpose": "Minimum representable amount, one stroop",
+        "client_ref": "ref-d2-018"
+      }
+    },
+    {
+      "n": 19,
+      "case_id": "s19",
+      "kind": "intent",
+      "field_variation": "seven decimal places, full stroop precision",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "anthropic-api",
+        "asset": "policy",
+        "amount": "12.3456789",
+        "purpose": "Full seven-decimal precision, no rounding anywhere on the path",
+        "client_ref": "ref-d2-019"
+      }
+    },
+    {
+      "n": 20,
+      "case_id": "s20",
+      "kind": "intent",
+      "field_variation": "2048-byte purpose plus a whole-number amount",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok" },
+      "settle": true,
+      "intent": {
+        "service_id": "openai-api",
+        "asset": "policy",
+        "amount": "1",
+        "purpose": { "pattern": "Extended purpose text, repeated to exercise a larger canonical preimage without leaving ASCII. ", "length": 2048 },
+        "client_ref": "ref-d2-020"
+      }
+    },
+    {
+      "case_id": "r10-approve",
+      "kind": "resolve",
+      "target": "s10",
+      "approve": true,
+      "note": "Owner approves the quarterly evaluation spend after review.",
+      "expect": { "http": 200, "verdict": "Approved", "reason_code": "Ok", "original_reason_code": "PendingApproval" }
+    },
+    {
+      "case_id": "r15-reject",
+      "kind": "resolve",
+      "target": "s15",
+      "approve": false,
+      "note": "Owner declines: the spend is not budgeted this quarter.",
+      "expect": { "http": 200, "verdict": "Rejected", "reason_code": "OwnerRejected", "original_reason_code": "PendingApproval" }
+    },
+    {
+      "case_id": "REFUSAL-1",
+      "kind": "resolve",
+      "target": "s10",
+      "approve": true,
+      "note": "Second resolve of a decision the owner already approved.",
+      "refusal": true,
+      "expect": { "http": 409, "contract_error": "AlreadyResolved" }
+    },
+    {
+      "case_id": "REFUSAL-2",
+      "kind": "resolve",
+      "target": "s15",
+      "approve": true,
+      "note": "Second resolve of a decision the owner already rejected, this time asking for the opposite answer.",
+      "refusal": true,
+      "expect": { "http": 409, "contract_error": "AlreadyResolved" }
+    },
+    {
+      "case_id": "approvals-queue",
+      "kind": "approvals",
+      "note": "The pending queue after all resolves. s14 must still be listed; s10 and s15 must not."
+    }
+  ]
+}

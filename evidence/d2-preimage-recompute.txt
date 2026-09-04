@@ -1,0 +1,32 @@
+intent_hash recomputation from the gateway transcript
+source     : /Users/tothanhthuong/Workplace/freelances/stellars/aegis/evidence/d2-gateway.ndjson
+method     : echo -n <canonical_hex> | xxd -r -p | shasum -a 256
+AEGIS code : none -- xxd and shasum only
+generated  : 2026-09-04T07:26:14Z
+
+#    intent_hash (as logged)                                          recompute preimage bytes
+---- ---------------------------------------------------------------- --------- --------------
+1    1a356a0c8b9490ca81748d535abd146d8b274308fda932b6be51dc740912442c MATCH     178
+2    819b379ac72cbd8157d6dbedc652d642becdfd0c3f91c8812742a3cf91ff1d29 MATCH     171
+3    91234faf84770fe725a7fb8e98f6260b0b244190dba4a019e942157b0eff3811 MATCH     125
+4    c3273bbfadd8dd116b70ea82d10bfc0c1d22d6c6df9f9b2b56689b16719b3f53 MATCH     160
+5    c1c754806a9554259b663e256c11df7c06bae1f9089b1481416e2c2b78e7364f MATCH     115
+6    c7e802f5f59fccd8774a83d346a1cb7c80a9d9b54f8435e6d6877209b6d838c3 MATCH     1152
+7    60e5c7e09b8bfb06f3859a1152f99be1c3fa77e8a2b1e3834ff4ee3f543ebe55 MATCH     395
+8    e3349eadf7828f670b9776ea1f46bfc53e80c44cd03c5f02d635e085e5fceb95 MATCH     167
+9    e0e4e27c2570ec8748e9ef71acf3e7f53ab10b8679d48f3c2e6e9d46c92fed7c MATCH     151
+10   9a9ebd5efcd76521bd822db194815ea1d892a2860c953aa010ba34c9aab9cf2a MATCH     182
+11   6b3c47a27fac88487905c0cd7d8bf594aa2ac001f455058d7b511c8bfc7ac62b MATCH     172
+12   c023cb096681cd091595da0af179b47857db4a52acd554d5f3fde201a0b6cef1 MATCH     161
+13   fdf3afd4399177ec4837eb27ee6ec997a26431ce07ca3b524334d318244b6a77 MATCH     187
+14   d7da75c876abe272f1ad7653674c5edb6cc2f8ca3d5e3f3c1fd23b2e04269315 MATCH     205
+15   09a258410ca1af47de03012d2c18c8bd44cedf79d4cba8ed1e490f0e251f75cb MATCH     154
+16   1a356a0c8b9490ca81748d535abd146d8b274308fda932b6be51dc740912442c MATCH     178
+17   6b3c47a27fac88487905c0cd7d8bf594aa2ac001f455058d7b511c8bfc7ac62b MATCH     172
+18   d7fb8673d3e5253dfaf29d779ff3360bf1cc88d9f60ef87afb5a815415592ffd MATCH     165
+19   b6a0f02f484c798ecdc44f4f0182098342bd7d11bbe58e6e360e60726e9d9898 MATCH     190
+20   ef66d07610cad3d1ed169264ae2e3bf937d7508acc4a75bb81c66f66b3ff2a01 MATCH     2173
+
+records checked : 20
+match           : 20
+mismatch        : 0

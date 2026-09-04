@@ -1,0 +1,546 @@
+{
+  "runs": {
+    "s01": {
+      "n": 1,
+      "case_id": "s01",
+      "decision_id": "b62b0ce89c7e3f0938816b327dc3752b7df5b6ff4e50f50e01afb6a0a49a97ec",
+      "amount_stroops": "15000000",
+      "at": "2026-09-04T07:14:48.055Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 15047,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/01-s01-b62b0ce89c7e3f09.json",
+      "tx_hash": "fb025c010c5a7064f24035d9b6a94322525548233b6c0a661a297a9aab395be9",
+      "memo_hash": "0510ea1a70eb38b5b142436b05a12fb9953dc091d617a9b5f11f929d6de43cfe",
+      "status": "SETTLED",
+      "ledger": 4496500,
+      "mark_settled_ledger": 4496499,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/fb025c010c5a7064f24035d9b6a94322525548233b6c0a661a297a9aab395be9",
+      "stdout": "{\n  \"decisionId\": \"b62b0ce89c7e3f0938816b327dc3752b7df5b6ff4e50f50e01afb6a0a49a97ec\",\n  \"txHash\": \"fb025c010c5a7064f24035d9b6a94322525548233b6c0a661a297a9aab395be9\",\n  \"memoHash\": \"0510ea1a70eb38b5b142436b05a12fb9953dc091d617a9b5f11f929d6de43cfe\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"15000000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"b62b0ce89c7e3f0938816b327dc3752b7df5b6ff4e50f50e01afb6a0a49a97ec\",\n      \"intent_hash\": \"1a356a0c8b9490ca81748d535abd146d8b274308fda932b6be51dc740912442c\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"openai-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"15000000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"fb025c010c5a7064f24035d9b6a94322525548233b6c0a661a297a9aab395be9\",\n      \"memo_hash\": \"0510ea1a70eb38b5b142436b05a12fb9953dc091d617a9b5f11f929d6de43cfe\",\n      \"memo_preimage\": \"1a356a0c8b9490ca81748d535abd146d8b274308fda932b6be51dc740912442c00000001b62b0ce89c7e3f0938816b327dc3752b7df5b6ff4e50f50e01afb6a0a49a97ec\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:14:48.047Z\"\n  },\n  \"ledger\": 4496500,\n  \"markSettledLedger\": 4496499\n}\n",
+      "stderr": ""
+    },
+    "s02": {
+      "n": 2,
+      "case_id": "s02",
+      "decision_id": "94d56d8ca36958d3d2132b7b634c2d7e5283ac30498a1ef1df59765effae3c69",
+      "amount_stroops": "22500000",
+      "at": "2026-09-04T07:15:02.348Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 14293,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/02-s02-94d56d8ca36958d3.json",
+      "tx_hash": "432c0d7de523dea14688c5a30fe8651af6d6f1dc06aafac0835543ed2dbe47db",
+      "memo_hash": "a855d1721b7e653d55556a801a0e9fc6ce6c82e825d1c52671b6564f14c45a7f",
+      "status": "SETTLED",
+      "ledger": 4496503,
+      "mark_settled_ledger": 4496502,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/432c0d7de523dea14688c5a30fe8651af6d6f1dc06aafac0835543ed2dbe47db",
+      "stdout": "{\n  \"decisionId\": \"94d56d8ca36958d3d2132b7b634c2d7e5283ac30498a1ef1df59765effae3c69\",\n  \"txHash\": \"432c0d7de523dea14688c5a30fe8651af6d6f1dc06aafac0835543ed2dbe47db\",\n  \"memoHash\": \"a855d1721b7e653d55556a801a0e9fc6ce6c82e825d1c52671b6564f14c45a7f\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"22500000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"94d56d8ca36958d3d2132b7b634c2d7e5283ac30498a1ef1df59765effae3c69\",\n      \"intent_hash\": \"819b379ac72cbd8157d6dbedc652d642becdfd0c3f91c8812742a3cf91ff1d29\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"anthropic-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"22500000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"432c0d7de523dea14688c5a30fe8651af6d6f1dc06aafac0835543ed2dbe47db\",\n      \"memo_hash\": \"a855d1721b7e653d55556a801a0e9fc6ce6c82e825d1c52671b6564f14c45a7f\",\n      \"memo_preimage\": \"819b379ac72cbd8157d6dbedc652d642becdfd0c3f91c8812742a3cf91ff1d290000000194d56d8ca36958d3d2132b7b634c2d7e5283ac30498a1ef1df59765effae3c69\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:15:02.340Z\"\n  },\n  \"ledger\": 4496503,\n  \"markSettledLedger\": 4496502\n}\n",
+      "stderr": ""
+    },
+    "s03": {
+      "n": 3,
+      "case_id": "s03",
+      "decision_id": "c4d77369099a58ef55c8479bc9789f5cf41e4337b8e9c43e55aa29b128730dce",
+      "amount_stroops": "30000000",
+      "at": "2026-09-04T07:15:18.068Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 15719,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/03-s03-c4d77369099a58ef.json",
+      "tx_hash": "face6424cc52cb29fdf41d5467c65988dd68165ec5569a2b021e789d743b9e32",
+      "memo_hash": "562edf4e1ef6c5998162651d278af97deef247256b2871f3ddf51e55c140990d",
+      "status": "SETTLED",
+      "ledger": 4496506,
+      "mark_settled_ledger": 4496505,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/face6424cc52cb29fdf41d5467c65988dd68165ec5569a2b021e789d743b9e32",
+      "stdout": "{\n  \"decisionId\": \"c4d77369099a58ef55c8479bc9789f5cf41e4337b8e9c43e55aa29b128730dce\",\n  \"txHash\": \"face6424cc52cb29fdf41d5467c65988dd68165ec5569a2b021e789d743b9e32\",\n  \"memoHash\": \"562edf4e1ef6c5998162651d278af97deef247256b2871f3ddf51e55c140990d\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"30000000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"c4d77369099a58ef55c8479bc9789f5cf41e4337b8e9c43e55aa29b128730dce\",\n      \"intent_hash\": \"91234faf84770fe725a7fb8e98f6260b0b244190dba4a019e942157b0eff3811\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"openai-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"30000000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"face6424cc52cb29fdf41d5467c65988dd68165ec5569a2b021e789d743b9e32\",\n      \"memo_hash\": \"562edf4e1ef6c5998162651d278af97deef247256b2871f3ddf51e55c140990d\",\n      \"memo_preimage\": \"91234faf84770fe725a7fb8e98f6260b0b244190dba4a019e942157b0eff381100000001c4d77369099a58ef55c8479bc9789f5cf41e4337b8e9c43e55aa29b128730dce\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:15:18.059Z\"\n  },\n  \"ledger\": 4496506,\n  \"markSettledLedger\": 4496505\n}\n",
+      "stderr": ""
+    },
+    "s04": {
+      "n": 4,
+      "case_id": "s04",
+      "decision_id": "7ae3e83b024a38133e98ba8be04993672313de78b8751215aa71740ec731b2bc",
+      "amount_stroops": "45000000",
+      "at": "2026-09-04T07:15:32.457Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 14388,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/04-s04-7ae3e83b024a3813.json",
+      "tx_hash": "a8a991c42226f1dda2cad690e252cb63ace3250d70be4df59976d07ea63d5a4a",
+      "memo_hash": "316a44ea58646ede9f526f2427b7af31d84288d0f12d853aa5628dc4691c8671",
+      "status": "SETTLED",
+      "ledger": 4496509,
+      "mark_settled_ledger": 4496508,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/a8a991c42226f1dda2cad690e252cb63ace3250d70be4df59976d07ea63d5a4a",
+      "stdout": "{\n  \"decisionId\": \"7ae3e83b024a38133e98ba8be04993672313de78b8751215aa71740ec731b2bc\",\n  \"txHash\": \"a8a991c42226f1dda2cad690e252cb63ace3250d70be4df59976d07ea63d5a4a\",\n  \"memoHash\": \"316a44ea58646ede9f526f2427b7af31d84288d0f12d853aa5628dc4691c8671\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"45000000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"7ae3e83b024a38133e98ba8be04993672313de78b8751215aa71740ec731b2bc\",\n      \"intent_hash\": \"c3273bbfadd8dd116b70ea82d10bfc0c1d22d6c6df9f9b2b56689b16719b3f53\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"anthropic-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"45000000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"a8a991c42226f1dda2cad690e252cb63ace3250d70be4df59976d07ea63d5a4a\",\n      \"memo_hash\": \"316a44ea58646ede9f526f2427b7af31d84288d0f12d853aa5628dc4691c8671\",\n      \"memo_preimage\": \"c3273bbfadd8dd116b70ea82d10bfc0c1d22d6c6df9f9b2b56689b16719b3f53000000017ae3e83b024a38133e98ba8be04993672313de78b8751215aa71740ec731b2bc\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:15:32.449Z\"\n  },\n  \"ledger\": 4496509,\n  \"markSettledLedger\": 4496508\n}\n",
+      "stderr": ""
+    },
+    "s05": {
+      "n": 5,
+      "case_id": "s05",
+      "decision_id": "60dcb6be99ae41da14b0e0f6df425ee89e53b6f5d120c148f9c18683c725f3f1",
+      "amount_stroops": "50000000",
+      "at": "2026-09-04T07:15:48.188Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 15730,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/05-s05-60dcb6be99ae41da.json",
+      "tx_hash": "3112ecec2dd2a715bcc92d06d22a62750d220e7f9854c74187a4824dc4d3e96e",
+      "memo_hash": "91362ba4b1e85efb5b9b4dbc30279097401f762969758d5c3a9ee800ec7d8e73",
+      "status": "SETTLED",
+      "ledger": 4496512,
+      "mark_settled_ledger": 4496511,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/3112ecec2dd2a715bcc92d06d22a62750d220e7f9854c74187a4824dc4d3e96e",
+      "stdout": "{\n  \"decisionId\": \"60dcb6be99ae41da14b0e0f6df425ee89e53b6f5d120c148f9c18683c725f3f1\",\n  \"txHash\": \"3112ecec2dd2a715bcc92d06d22a62750d220e7f9854c74187a4824dc4d3e96e\",\n  \"memoHash\": \"91362ba4b1e85efb5b9b4dbc30279097401f762969758d5c3a9ee800ec7d8e73\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"50000000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"60dcb6be99ae41da14b0e0f6df425ee89e53b6f5d120c148f9c18683c725f3f1\",\n      \"intent_hash\": \"c1c754806a9554259b663e256c11df7c06bae1f9089b1481416e2c2b78e7364f\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"openai-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"50000000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"3112ecec2dd2a715bcc92d06d22a62750d220e7f9854c74187a4824dc4d3e96e\",\n      \"memo_hash\": \"91362ba4b1e85efb5b9b4dbc30279097401f762969758d5c3a9ee800ec7d8e73\",\n      \"memo_preimage\": \"c1c754806a9554259b663e256c11df7c06bae1f9089b1481416e2c2b78e7364f0000000160dcb6be99ae41da14b0e0f6df425ee89e53b6f5d120c148f9c18683c725f3f1\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:15:48.178Z\"\n  },\n  \"ledger\": 4496512,\n  \"markSettledLedger\": 4496511\n}\n",
+      "stderr": ""
+    },
+    "s06": {
+      "n": 6,
+      "case_id": "s06",
+      "decision_id": "f188da8765686e2a626ce864b71eae97f9a2d6c3400b215ac6f8b59c1ff89ae6",
+      "amount_stroops": "62500000",
+      "at": "2026-09-04T07:16:03.037Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 14849,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/06-s06-f188da8765686e2a.json",
+      "tx_hash": "87c09c1f4db564f3e8706f7c517f91b4d1aba58e15b709e6fb0abe7bf10800ef",
+      "memo_hash": "40a5fbf70cf5e3d0092b5b3b71878de5f94c0cc949a0aa366d976d8cfc0d5ecd",
+      "status": "SETTLED",
+      "ledger": 4496515,
+      "mark_settled_ledger": 4496514,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/87c09c1f4db564f3e8706f7c517f91b4d1aba58e15b709e6fb0abe7bf10800ef",
+      "stdout": "{\n  \"decisionId\": \"f188da8765686e2a626ce864b71eae97f9a2d6c3400b215ac6f8b59c1ff89ae6\",\n  \"txHash\": \"87c09c1f4db564f3e8706f7c517f91b4d1aba58e15b709e6fb0abe7bf10800ef\",\n  \"memoHash\": \"40a5fbf70cf5e3d0092b5b3b71878de5f94c0cc949a0aa366d976d8cfc0d5ecd\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"62500000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"f188da8765686e2a626ce864b71eae97f9a2d6c3400b215ac6f8b59c1ff89ae6\",\n      \"intent_hash\": \"c7e802f5f59fccd8774a83d346a1cb7c80a9d9b54f8435e6d6877209b6d838c3\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"anthropic-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"62500000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"87c09c1f4db564f3e8706f7c517f91b4d1aba58e15b709e6fb0abe7bf10800ef\",\n      \"memo_hash\": \"40a5fbf70cf5e3d0092b5b3b71878de5f94c0cc949a0aa366d976d8cfc0d5ecd\",\n      \"memo_preimage\": \"c7e802f5f59fccd8774a83d346a1cb7c80a9d9b54f8435e6d6877209b6d838c300000001f188da8765686e2a626ce864b71eae97f9a2d6c3400b215ac6f8b59c1ff89ae6\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:16:03.033Z\"\n  },\n  \"ledger\": 4496515,\n  \"markSettledLedger\": 4496514\n}\n",
+      "stderr": ""
+    },
+    "s10": {
+      "n": 10,
+      "case_id": "s10",
+      "decision_id": "17594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0",
+      "amount_stroops": "300000000",
+      "at": "2026-09-04T07:16:17.353Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 14315,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/10-s10-17594051cc98c12d.json",
+      "tx_hash": "c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127",
+      "memo_hash": "c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a",
+      "status": "SETTLED",
+      "ledger": 4496518,
+      "mark_settled_ledger": 4496517,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127",
+      "stdout": "{\n  \"decisionId\": \"17594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0\",\n  \"txHash\": \"c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127\",\n  \"memoHash\": \"c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"300000000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"17594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0\",\n      \"intent_hash\": \"9a9ebd5efcd76521bd822db194815ea1d892a2860c953aa010ba34c9aab9cf2a\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"openai-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"300000000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127\",\n      \"memo_hash\": \"c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a\",\n      \"memo_preimage\": \"9a9ebd5efcd76521bd822db194815ea1d892a2860c953aa010ba34c9aab9cf2a0000000117594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:16:17.344Z\"\n  },\n  \"ledger\": 4496518,\n  \"markSettledLedger\": 4496517\n}\n",
+      "stderr": ""
+    },
+    "s18": {
+      "n": 18,
+      "case_id": "s18",
+      "decision_id": "37c793a5e1e79f4143e42c36b9ffd2c6c4d1a5a1efdab7ebd03fe6610a9d8d45",
+      "amount_stroops": "1",
+      "at": "2026-09-04T07:16:32.347Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 14993,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/18-s18-37c793a5e1e79f41.json",
+      "tx_hash": "bc3cf80bbb1a7708d403b0231aa6eb438857a36e889a788a1ab77c0ad0ede92e",
+      "memo_hash": "0499cbe3de42d35e2ea39b1ada4a24f529086bd9150cf9345a6d69c30ce8678f",
+      "status": "SETTLED",
+      "ledger": 4496521,
+      "mark_settled_ledger": 4496520,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/bc3cf80bbb1a7708d403b0231aa6eb438857a36e889a788a1ab77c0ad0ede92e",
+      "stdout": "{\n  \"decisionId\": \"37c793a5e1e79f4143e42c36b9ffd2c6c4d1a5a1efdab7ebd03fe6610a9d8d45\",\n  \"txHash\": \"bc3cf80bbb1a7708d403b0231aa6eb438857a36e889a788a1ab77c0ad0ede92e\",\n  \"memoHash\": \"0499cbe3de42d35e2ea39b1ada4a24f529086bd9150cf9345a6d69c30ce8678f\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"1\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"37c793a5e1e79f4143e42c36b9ffd2c6c4d1a5a1efdab7ebd03fe6610a9d8d45\",\n      \"intent_hash\": \"d7fb8673d3e5253dfaf29d779ff3360bf1cc88d9f60ef87afb5a815415592ffd\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"openai-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"1\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"bc3cf80bbb1a7708d403b0231aa6eb438857a36e889a788a1ab77c0ad0ede92e\",\n      \"memo_hash\": \"0499cbe3de42d35e2ea39b1ada4a24f529086bd9150cf9345a6d69c30ce8678f\",\n      \"memo_preimage\": \"d7fb8673d3e5253dfaf29d779ff3360bf1cc88d9f60ef87afb5a815415592ffd0000000137c793a5e1e79f4143e42c36b9ffd2c6c4d1a5a1efdab7ebd03fe6610a9d8d45\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:16:32.338Z\"\n  },\n  \"ledger\": 4496521,\n  \"markSettledLedger\": 4496520\n}\n",
+      "stderr": ""
+    },
+    "s19": {
+      "n": 19,
+      "case_id": "s19",
+      "decision_id": "3c605cc0e1fe58e2e4583d94388d4013605f2ad75b2244083893b575f1a23147",
+      "amount_stroops": "123456789",
+      "at": "2026-09-04T07:16:48.055Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 15707,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/19-s19-3c605cc0e1fe58e2.json",
+      "tx_hash": "6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c",
+      "memo_hash": "b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573",
+      "status": "SETTLED",
+      "ledger": 4496524,
+      "mark_settled_ledger": 4496523,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c",
+      "stdout": "{\n  \"decisionId\": \"3c605cc0e1fe58e2e4583d94388d4013605f2ad75b2244083893b575f1a23147\",\n  \"txHash\": \"6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c\",\n  \"memoHash\": \"b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"123456789\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"3c605cc0e1fe58e2e4583d94388d4013605f2ad75b2244083893b575f1a23147\",\n      \"intent_hash\": \"b6a0f02f484c798ecdc44f4f0182098342bd7d11bbe58e6e360e60726e9d9898\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"anthropic-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"123456789\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c\",\n      \"memo_hash\": \"b7581cc4a8075dd5322f2aac11211ae4cc28f86350a81832b185d85a6719b573\",\n      \"memo_preimage\": \"b6a0f02f484c798ecdc44f4f0182098342bd7d11bbe58e6e360e60726e9d9898000000013c605cc0e1fe58e2e4583d94388d4013605f2ad75b2244083893b575f1a23147\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:16:48.049Z\"\n  },\n  \"ledger\": 4496524,\n  \"markSettledLedger\": 4496523\n}\n",
+      "stderr": ""
+    },
+    "s20": {
+      "n": 20,
+      "case_id": "s20",
+      "decision_id": "c1e498ed8b8797e83014d60a68238b70eb244ace22c01676671ad21e94dce04d",
+      "amount_stroops": "10000000",
+      "at": "2026-09-04T07:17:02.442Z",
+      "exit_code": 0,
+      "gate_code": null,
+      "wall_ms": 14386,
+      "attempt_trail": [
+        {
+          "verb": "settle",
+          "exit_code": 0,
+          "code": null
+        }
+      ],
+      "receipt_path": "evidence/d3-receipts/20-s20-c1e498ed8b8797e8.json",
+      "tx_hash": "92638827bb8c7a99374021ea56dc1ab24d1e31a5df8d8723491e89a070c861cb",
+      "memo_hash": "3691fe0b87e78e56f4eb99e57d5b7b2ac338ae2afa28dd2890af259d305679b2",
+      "status": "SETTLED",
+      "ledger": 4496527,
+      "mark_settled_ledger": 4496526,
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "stellar_expert": "https://stellar.expert/explorer/testnet/tx/92638827bb8c7a99374021ea56dc1ab24d1e31a5df8d8723491e89a070c861cb",
+      "stdout": "{\n  \"decisionId\": \"c1e498ed8b8797e83014d60a68238b70eb244ace22c01676671ad21e94dce04d\",\n  \"txHash\": \"92638827bb8c7a99374021ea56dc1ab24d1e31a5df8d8723491e89a070c861cb\",\n  \"memoHash\": \"3691fe0b87e78e56f4eb99e57d5b7b2ac338ae2afa28dd2890af259d305679b2\",\n  \"status\": \"SETTLED\",\n  \"dryRun\": false,\n  \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n  \"amountStroops\": \"10000000\",\n  \"receipt\": {\n    \"version\": \"aegis-receipt/1\",\n    \"network\": {\n      \"passphrase\": \"Test SDF Network ; September 2015\",\n      \"contract_id\": \"CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA\",\n      \"horizon\": \"https://horizon-testnet.stellar.org\",\n      \"rpc\": \"https://soroban-testnet.stellar.org\"\n    },\n    \"chain\": {\n      \"decision_id\": \"c1e498ed8b8797e83014d60a68238b70eb244ace22c01676671ad21e94dce04d\",\n      \"intent_hash\": \"ef66d07610cad3d1ed169264ae2e3bf937d7508acc4a75bb81c66f66b3ff2a01\",\n      \"policy_version\": 1,\n      \"agent\": \"GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH\",\n      \"service_id\": \"openai-api\",\n      \"asset\": \"CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA\",\n      \"amount\": \"10000000\"\n    },\n    \"settlement\": {\n      \"tx_hash\": \"92638827bb8c7a99374021ea56dc1ab24d1e31a5df8d8723491e89a070c861cb\",\n      \"memo_hash\": \"3691fe0b87e78e56f4eb99e57d5b7b2ac338ae2afa28dd2890af259d305679b2\",\n      \"memo_preimage\": \"ef66d07610cad3d1ed169264ae2e3bf937d7508acc4a75bb81c66f66b3ff2a0100000001c1e498ed8b8797e83014d60a68238b70eb244ace22c01676671ad21e94dce04d\",\n      \"source\": \"GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3\",\n      \"destination\": \"GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY\",\n      \"asset\": \"USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5\"\n    },\n    \"issued_at\": \"2026-09-04T07:17:02.433Z\"\n  },\n  \"ledger\": 4496527,\n  \"markSettledLedger\": 4496526\n}\n",
+      "stderr": ""
+    }
+  },
+  "refusals": [
+    {
+      "case_id": "REFUSAL-3",
+      "decision_id": "7504f529518b41ce2edc3fcdc04cbb819d2024842c3402519cb66af58d4264c7",
+      "why": "decision is RequiresApproval and still unresolved -- nobody has approved this spend",
+      "at": "2026-09-04T07:13:38.286Z",
+      "exit_code": 1,
+      "gate_code": "NOT_APPROVED",
+      "is_gate_refusal": true,
+      "stdout": "",
+      "stderr": "NOT_APPROVED: the contract did not approve this spend (expected Approved, got RequiresApproval)\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    {
+      "case_id": "REFUSAL-4",
+      "decision_id": "c942b69f7af06b0172aa39f81e3e42412a9b83c4b8fbfdebe0b9411d314b9db2",
+      "why": "decision is Rejected (CapExceeded) -- the contract refused this spend outright",
+      "at": "2026-09-04T07:13:39.561Z",
+      "exit_code": 1,
+      "gate_code": "NOT_APPROVED",
+      "is_gate_refusal": true,
+      "stdout": "",
+      "stderr": "NOT_APPROVED: the contract did not approve this spend (expected Approved, got Rejected)\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    {
+      "case_id": "REFUSAL-5-bonus",
+      "decision_id": "0000000000000000000000000000000000000000000000000000000000000000",
+      "why": "no such decision on chain -- the executor has nothing to gate against",
+      "at": "2026-09-04T07:13:40.779Z",
+      "exit_code": 1,
+      "gate_code": "SOURCE_UNAVAILABLE",
+      "is_gate_refusal": false,
+      "stdout": "",
+      "stderr": "SOURCE_UNAVAILABLE: the contract returned No decision is stored under this decision_id or intent_hash. Also what a\nreader sees if the persistent entry has been archived and not restored. from get_decision\n"
+    }
+  ],
+  "replays": {
+    "s01": {
+      "n": 1,
+      "decision_id": "b62b0ce89c7e3f0938816b327dc3752b7df5b6ff4e50f50e01afb6a0a49a97ec",
+      "at": "2026-09-04T07:17:13.638Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "fb025c010c5a7064f24035d9b6a94322525548233b6c0a661a297a9aab395be9",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s02": {
+      "n": 2,
+      "decision_id": "94d56d8ca36958d3d2132b7b634c2d7e5283ac30498a1ef1df59765effae3c69",
+      "at": "2026-09-04T07:17:15.747Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "432c0d7de523dea14688c5a30fe8651af6d6f1dc06aafac0835543ed2dbe47db",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s03": {
+      "n": 3,
+      "decision_id": "c4d77369099a58ef55c8479bc9789f5cf41e4337b8e9c43e55aa29b128730dce",
+      "at": "2026-09-04T07:17:17.720Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "face6424cc52cb29fdf41d5467c65988dd68165ec5569a2b021e789d743b9e32",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s04": {
+      "n": 4,
+      "decision_id": "7ae3e83b024a38133e98ba8be04993672313de78b8751215aa71740ec731b2bc",
+      "at": "2026-09-04T07:17:19.308Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "a8a991c42226f1dda2cad690e252cb63ace3250d70be4df59976d07ea63d5a4a",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s05": {
+      "n": 5,
+      "decision_id": "60dcb6be99ae41da14b0e0f6df425ee89e53b6f5d120c148f9c18683c725f3f1",
+      "at": "2026-09-04T07:17:20.885Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "3112ecec2dd2a715bcc92d06d22a62750d220e7f9854c74187a4824dc4d3e96e",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s06": {
+      "n": 6,
+      "decision_id": "f188da8765686e2a626ce864b71eae97f9a2d6c3400b215ac6f8b59c1ff89ae6",
+      "at": "2026-09-04T07:17:22.896Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "87c09c1f4db564f3e8706f7c517f91b4d1aba58e15b709e6fb0abe7bf10800ef",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s10": {
+      "n": 10,
+      "decision_id": "17594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0",
+      "at": "2026-09-04T07:17:24.619Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s18": {
+      "n": 18,
+      "decision_id": "37c793a5e1e79f4143e42c36b9ffd2c6c4d1a5a1efdab7ebd03fe6610a9d8d45",
+      "at": "2026-09-04T07:17:26.360Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "bc3cf80bbb1a7708d403b0231aa6eb438857a36e889a788a1ab77c0ad0ede92e",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s19": {
+      "n": 19,
+      "decision_id": "3c605cc0e1fe58e2e4583d94388d4013605f2ad75b2244083893b575f1a23147",
+      "at": "2026-09-04T07:17:28.259Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    },
+    "s20": {
+      "n": 20,
+      "decision_id": "c1e498ed8b8797e83014d60a68238b70eb244ace22c01676671ad21e94dce04d",
+      "at": "2026-09-04T07:17:30.038Z",
+      "exit_code": 1,
+      "gate_code": "ALREADY_SETTLED",
+      "refused": true,
+      "original_tx_hash": "92638827bb8c7a99374021ea56dc1ab24d1e31a5df8d8723491e89a070c861cb",
+      "stdout": "",
+      "stderr": "ALREADY_SETTLED: the contract has already marked this decision settled (expected settled == false, got settled == true (local journal: SETTLED))\n  ^ refused by the decision itself — re-running changes nothing until the chain does\n"
+    }
+  },
+  "verifier": {
+    "s01": {
+      "n": 1,
+      "tx_hash": "fb025c010c5a7064f24035d9b6a94322525548233b6c0a661a297a9aab395be9",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/01-s01-b62b0ce89c7e3f09.txt",
+      "json_path": "evidence/d3-verifier/01-s01-b62b0ce89c7e3f09.json",
+      "at": "2026-09-04T07:17:46.835Z"
+    },
+    "s02": {
+      "n": 2,
+      "tx_hash": "432c0d7de523dea14688c5a30fe8651af6d6f1dc06aafac0835543ed2dbe47db",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/02-s02-94d56d8ca36958d3.txt",
+      "json_path": "evidence/d3-verifier/02-s02-94d56d8ca36958d3.json",
+      "at": "2026-09-04T07:17:56.982Z"
+    },
+    "s03": {
+      "n": 3,
+      "tx_hash": "face6424cc52cb29fdf41d5467c65988dd68165ec5569a2b021e789d743b9e32",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/03-s03-c4d77369099a58ef.txt",
+      "json_path": "evidence/d3-verifier/03-s03-c4d77369099a58ef.json",
+      "at": "2026-09-04T07:18:06.722Z"
+    },
+    "s04": {
+      "n": 4,
+      "tx_hash": "a8a991c42226f1dda2cad690e252cb63ace3250d70be4df59976d07ea63d5a4a",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/04-s04-7ae3e83b024a3813.txt",
+      "json_path": "evidence/d3-verifier/04-s04-7ae3e83b024a3813.json",
+      "at": "2026-09-04T07:18:16.372Z"
+    },
+    "s05": {
+      "n": 5,
+      "tx_hash": "3112ecec2dd2a715bcc92d06d22a62750d220e7f9854c74187a4824dc4d3e96e",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/05-s05-60dcb6be99ae41da.txt",
+      "json_path": "evidence/d3-verifier/05-s05-60dcb6be99ae41da.json",
+      "at": "2026-09-04T07:18:26.170Z"
+    },
+    "s06": {
+      "n": 6,
+      "tx_hash": "87c09c1f4db564f3e8706f7c517f91b4d1aba58e15b709e6fb0abe7bf10800ef",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/06-s06-f188da8765686e2a.txt",
+      "json_path": "evidence/d3-verifier/06-s06-f188da8765686e2a.json",
+      "at": "2026-09-04T07:18:36.136Z"
+    },
+    "s10": {
+      "n": 10,
+      "tx_hash": "c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/10-s10-17594051cc98c12d.txt",
+      "json_path": "evidence/d3-verifier/10-s10-17594051cc98c12d.json",
+      "at": "2026-09-04T07:18:46.563Z"
+    },
+    "s18": {
+      "n": 18,
+      "tx_hash": "bc3cf80bbb1a7708d403b0231aa6eb438857a36e889a788a1ab77c0ad0ede92e",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/18-s18-37c793a5e1e79f41.txt",
+      "json_path": "evidence/d3-verifier/18-s18-37c793a5e1e79f41.json",
+      "at": "2026-09-04T07:18:56.268Z"
+    },
+    "s19": {
+      "n": 19,
+      "tx_hash": "6d7bd2994128080192012dc7899fec768e97fb48615b81ceb3576d1bce91f07c",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/19-s19-3c605cc0e1fe58e2.txt",
+      "json_path": "evidence/d3-verifier/19-s19-3c605cc0e1fe58e2.json",
+      "at": "2026-09-04T07:19:06.692Z"
+    },
+    "s20": {
+      "n": 20,
+      "tx_hash": "92638827bb8c7a99374021ea56dc1ab24d1e31a5df8d8723491e89a070c861cb",
+      "exit_code": 0,
+      "verdict": "VERIFIED",
+      "report_path": "evidence/d3-verifier/20-s20-c1e498ed8b8797e8.txt",
+      "json_path": "evidence/d3-verifier/20-s20-c1e498ed8b8797e8.json",
+      "at": "2026-09-04T07:19:17.770Z"
+    }
+  },
+  "balances_before": {
+    "at": "2026-09-04T07:14:30.656Z",
+    "executor": {
+      "USDC": "987.5000000",
+      "XLM": "9421.5845354"
+    },
+    "merchant": {
+      "USDC": "12.5000000",
+      "XLM": "9999.9999900"
+    }
+  },
+  "balances_after_settle": {
+    "at": "2026-09-04T07:17:02.443Z",
+    "executor": {
+      "USDC": "921.6543210",
+      "XLM": "9421.5844354"
+    },
+    "merchant": {
+      "USDC": "78.3456790",
+      "XLM": "9999.9999900"
+    }
+  },
+  "balances_after_replay": {
+    "at": "2026-09-04T07:17:30.039Z",
+    "executor": {
+      "USDC": "921.6543210",
+      "XLM": "9421.5844354"
+    },
+    "merchant": {
+      "USDC": "78.3456790",
+      "XLM": "9999.9999900"
+    }
+  }
+}

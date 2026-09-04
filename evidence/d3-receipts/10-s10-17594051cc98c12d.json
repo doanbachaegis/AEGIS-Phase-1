@@ -1,0 +1,27 @@
+{
+  "version": "aegis-receipt/1",
+  "network": {
+    "passphrase": "Test SDF Network ; September 2015",
+    "contract_id": "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA",
+    "horizon": "https://horizon-testnet.stellar.org",
+    "rpc": "https://soroban-testnet.stellar.org"
+  },
+  "chain": {
+    "decision_id": "17594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0",
+    "intent_hash": "9a9ebd5efcd76521bd822db194815ea1d892a2860c953aa010ba34c9aab9cf2a",
+    "policy_version": 1,
+    "agent": "GAUU26AEOPD2HOKHAU46YNNTFY327BNN5BPWRX2Q65SJFUP2MNGOK3MH",
+    "service_id": "openai-api",
+    "asset": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+    "amount": "300000000"
+  },
+  "settlement": {
+    "tx_hash": "c9242c10dd5fe72d96031f883c2af6803568dda7359e3ede55ed53795b70b127",
+    "memo_hash": "c758fe0e46058e02a68b68565f0158f582cef5aa880509d6a08a4d2bb19c764a",
+    "memo_preimage": "9a9ebd5efcd76521bd822db194815ea1d892a2860c953aa010ba34c9aab9cf2a0000000117594051cc98c12d479e027a434dde7342d0f602f1711a916fa9659ec2e4ddd0",
+    "source": "GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3",
+    "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+    "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+  },
+  "issued_at": "2026-09-04T07:16:17.344Z"
+}

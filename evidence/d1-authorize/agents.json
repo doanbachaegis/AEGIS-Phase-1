@@ -1,0 +1,93 @@
+{
+  "schema": "aegis.d1.agents.v1",
+  "session": "20260904T070836Z",
+  "network": "testnet",
+  "contract_id": "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA",
+  "caller": "GCIGOEJE673AMU7KM5X44BPQ46JXTMLARAXF4SSRYLVPVRDKMWXEBBWL",
+  "fee_payer": "GBELVN2554N5OAAMF7YTI2SEW2I5KUYRQ6FUNPU4F4N5JGZFJINFNZDT",
+  "final_windows": {
+    "aegis-d1-compliant": {
+      "window_start": "1788505782",
+      "spent": "1183399999"
+    },
+    "aegis-d1-limits": {
+      "window_start": "1788506472",
+      "spent": "0"
+    },
+    "aegis-d1-mismatch": {
+      "window_start": "1788506477",
+      "spent": "0"
+    },
+    "aegis-d1-revoked": {
+      "window_start": "1788506477",
+      "spent": "0"
+    }
+  },
+  "policy_template": {
+    "allowed_services": [
+      "openai-api",
+      "anthropic-api"
+    ],
+    "allowed_asset": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+    "per_intent_cap": "500000000",
+    "approval_threshold": "250000000",
+    "cumulative_window_cap": "2000000000",
+    "window_seconds": "86400"
+  },
+  "agents": [
+    {
+      "alias": "aegis-d1-compliant",
+      "address": "GAA5DOCH5462QC3LNSYPBKUA4NYWUHKXTNBYCJCS6F66E5LUMO445ZMZ",
+      "role": "compliant",
+      "why": "scenario 1 - the only agent that ever receives an Approved verdict, so the only one whose tumbling window is ever charged",
+      "status": "Active",
+      "policy_version": 1,
+      "register_tx": "ab3e4b61a85c8d8e536274a41128dbe77c44fbffa10bb8a301ab15a15b800ce3"
+    },
+    {
+      "alias": "aegis-d1-limits",
+      "address": "GAFQPIRNKE3WSKGYZU2S5ULSAQM6BBWADEXTUAJAUCTE7Z5LKUHPN6C2",
+      "role": "limits",
+      "why": "scenarios 2 and 5 - amount-limit cases; never approved, so its window stays at zero spend and cannot poison the scenario 5 threshold check",
+      "status": "Active",
+      "policy_version": 1,
+      "register_tx": "0f1260cc74df5ff8757cbfa63d20581124f8049eda84e5f996368c8c0725b3e4"
+    },
+    {
+      "alias": "aegis-d1-mismatch",
+      "address": "GARKZBZPGPWYHJJ3POUUZVGAURU52L3Z2ZJO2BPLCMRID5GS645BFV33",
+      "role": "mismatch",
+      "why": "scenarios 3 and 4 - service and asset cases; never approved",
+      "status": "Active",
+      "policy_version": 1,
+      "register_tx": "72c2304fbbbdabc6b89cf5023295112f2e888e2381b0dca8598310cde8840227"
+    },
+    {
+      "alias": "aegis-d1-revoked",
+      "address": "GBZKYKGKYGNLTOLXZQ33D5DC225ECFOT3G2SCUX75EKFQTNB7GT3Z4IN",
+      "role": "revoked",
+      "why": "scenario 6 - registered active, then revoked before any run is sent",
+      "status": "Revoked",
+      "policy_version": 1,
+      "register_tx": "d21a144b68f5c69c237f446f452d1bfcacfbb0e86e5815249af1641ea2e60623",
+      "revoke_tx": "7f4f7f9132c56ff5f445ec26ef27e4d1cd728454039f1bbe77215e3e7a16f8a2"
+    }
+  ],
+  "assets": {
+    "usdc": {
+      "sac": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+      "canonical": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+      "label": "USDC (policy asset)"
+    },
+    "xlm": {
+      "sac": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "canonical": "XLM:native",
+      "label": "XLM (native SAC)"
+    },
+    "eurc": {
+      "sac": "CCUUDM434BMZMYWYDITHFXHDMIVTGGD6T2I5UKNX5BSLXLW7HVR4MCGZ",
+      "canonical": "EURC:GB3Q6QDZYTHWT7E5PVS3W7FUT5GVAFC5KSZFFLPU25GO7VTC3NM2ZTVO",
+      "label": "EURC (testnet SAC)"
+    }
+  }
+}
