@@ -9,10 +9,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "verify": "node dist/cli.js"
   },
   "dependencies": {
-    "@aegis/canonical": "workspace:*"
+    "@aegis/canonical": "workspace:*",
+    "@aegis/receipt": "workspace:*",
+    "@stellar/stellar-sdk": "^16.3.0"
   },
   "devDependencies": {
     "@types/node": "^26.4.1"

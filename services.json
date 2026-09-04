@@ -1,0 +1,45 @@
+{
+  "schema": "aegis.service-registry.v1",
+  "registry_version": 1,
+  "updated_at": "2026-09-04",
+  "network": {
+    "name": "testnet",
+    "passphrase": "Test SDF Network ; September 2015",
+    "contract_id": "CAAD6727VZDKH77IVZJ526B3YENMMU26DGHUEU3B4D6KK3JS5YTNTRPP"
+  },
+  "trust_model": {
+    "status": "PUBLISHED, NOT ENFORCED",
+    "limitation": "The on-chain Decision record carries decision_id, intent_hash, agent, service_id, asset, amount and policy_version -- it does NOT carry a destination account. The contract therefore cannot and does not constrain where the executor sends funds. This file is the out-of-band binding from service_id to destination that SOW 4.1 D3 and 6.1 D3 require the verifier to check 'amount, asset and destination against the on-chain decision'. A verifier that checks a settlement against this registry is proving 'the payment went where the published registry said it should', NOT 'the payment went where the contract required'. Those are different claims and only the weaker one is true in Phase 1.",
+    "consequence": "A compromised executor can pay an address that is not in this registry. The contract will not stop it. The verifier WILL detect it after the fact, because the settlement payment's destination will not match this file. Detection is post-hoc, not prevention.",
+    "phase_2_note": "Binding the destination on-chain -- by adding it to Decision, or by committing to a registry hash in contract storage -- would upgrade this from detection to prevention. That is out of scope for Phase 1.",
+    "hashing_rule": "registry_hash = SHA-256 over the raw UTF-8 bytes of this file exactly as committed, including the trailing newline. No JSON canonicalization step is applied: the bytes on disk are the input. This keeps the caveats above inside the hashed payload, so they cannot be stripped from the registry without changing its hash."
+  },
+  "asset": {
+    "code": "USDC",
+    "issuer": "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+    "sac": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+    "note": "The sac address is what appears in Decision.asset and in Policy.allowed_asset. The issuer/code pair is what appears in the Horizon payment record for the settlement. A verifier must match both ends against this one entry."
+  },
+  "executor": {
+    "account_id": "GBZZPQQHAAABQEHRYIF7GQ4ZL2ULZVRHJNZDOR5SS3XP23DIPX5JWNY3",
+    "alias": "aegis-executor",
+    "note": "The single published settlement source for Phase 1. Every settlement payment MUST originate from this account; a payment to a registered destination from any other source does not settle a decision. Phase 1 trusts this key -- see DECISIONS.md #6."
+  },
+  "services": [
+    {
+      "service_id": "openai-api",
+      "display_name": "OpenAI API",
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "destination_alias": "aegis-merchant-1",
+      "active": true
+    },
+    {
+      "service_id": "anthropic-api",
+      "display_name": "Anthropic API",
+      "destination": "GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY",
+      "destination_alias": "aegis-merchant-1",
+      "active": true
+    }
+  ],
+  "services_note": "service_id values MUST be exactly the strings in the on-chain Policy.allowed_services for the agent that produced the decision; matching is byte-exact on the UTF-8 encoding, with no normalization or case folding. As of registry_version 1 the live policy (version 1) whitelists exactly these two. Both resolve to the same destination because SOW out-of-scope #3 confines Phase 1 settlement to AEGIS test accounts -- one merchant stands in for every payee. The two rows are kept distinct rather than collapsed so that adding a real second payee is a value change, not a schema change."
+}
