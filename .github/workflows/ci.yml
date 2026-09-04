@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  # D1 proof: the output of this job is evidence, not decoration.
+  contract:
+    name: Contract (Rust)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: wasm32v1-none }
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      # The 7 scenarios from §5.2 + the adversarial suite
+      - run: cargo test
+      # -p is required: aegis-canonical is a std crate, so a workspace-wide
+      # build against this bare-metal target fails on `can't find crate for std`.
+      - run: cargo build -p aegis-authorization --target wasm32v1-none --release
+
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  # ⭐ The most important gate: Rust and TS must produce the SAME hash.
+  # A one-byte divergence turns this red here, not in Week 4.
+  canonical-parity:
+    name: Canonical parity (Rust ↔ TS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      # both assert AGAINST vectors/canonical-vectors.json — neither side generates it
+      - run: cargo test -p aegis-canonical
+      - run: pnpm --filter @aegis/canonical test
+      - name: Fixture must not change unintentionally
+        run: git diff --exit-code vectors/canonical-vectors.json

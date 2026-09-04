@@ -1,0 +1,117 @@
+{
+  "spec": "AEGIS-INTENT-v1",
+  "vectors": [
+    {
+      "name": "minimal-ascii",
+      "intent": {
+        "agentId": "agent-1",
+        "serviceId": "svc-api",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "10000000",
+        "purpose": "api call",
+        "clientRef": "ref-001"
+      },
+      "policy_version": 1,
+      "canonical_hex": "41454749532d494e54454e542d7631076167656e742d31077376632d6170693d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c41350000000000000000000000000098968000086170692063616c6c077265662d303031",
+      "intent_hash": "881ef2c13c7c0289241faf8f3283b9a0438fa95fba76d218f58cf9c7496e6283",
+      "decision_id": "53fca634855961019e596b63cf8a7d2f0e30272c3f7335e9439a65a2b2dd252d",
+      "memo_hash": "14004fa3336cbcd2ab9d7728a2ec5c17495fdbe4007f014f0bfe23ebf64cfdde"
+    },
+    {
+      "name": "fractional-amount",
+      "intent": {
+        "agentId": "agent-1",
+        "serviceId": "svc-data",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "125000000",
+        "purpose": "dataset query",
+        "clientRef": "ref-002"
+      },
+      "policy_version": 1,
+      "canonical_hex": "41454749532d494e54454e542d7631076167656e742d31087376632d646174613d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c413500000000000000000000000007735940000d64617461736574207175657279077265662d303032",
+      "intent_hash": "37bc9fbc640e4fe438c51a9b8c4974411a29b8cda331033047e151e361691438",
+      "decision_id": "d727130bbcd068c177f38af8af58bac84af5022ee0653aedefe11061f4ecf1ad",
+      "memo_hash": "56f5bca77b1d73aa470ea83b5ee4954a0ae0c3d0d3a31924f40ce4907bbc046a"
+    },
+    {
+      "name": "max-precision-stroop",
+      "intent": {
+        "agentId": "agent-2",
+        "serviceId": "svc-compute",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "1",
+        "purpose": "inference",
+        "clientRef": "ref-003"
+      },
+      "policy_version": 7,
+      "canonical_hex": "41454749532d494e54454e542d7631076167656e742d320b7376632d636f6d707574653d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c4135000000000000000000000000000000010009696e666572656e6365077265662d303033",
+      "intent_hash": "831a06a4318c908ce0c07e9d96d5dd0a5f64d7d977f689e34426d35fb366a25e",
+      "decision_id": "e9511a633fb3d5fbe1abde893c49f6bd945bd0054b2021dd3aab3a4e5c647a6e",
+      "memo_hash": "9b6d6192299ed9ac8f783f743bd9958758c0a4572b5e767f633c24505631e825"
+    },
+    {
+      "name": "unicode-nfc",
+      "intent": {
+        "agentId": "agent-vn",
+        "serviceId": "svc-api",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "2500000000",
+        "purpose": "gọi API phân tích",
+        "clientRef": "ref-004"
+      },
+      "policy_version": 2,
+      "canonical_hex": "41454749532d494e54454e542d7631086167656e742d766e077376632d6170693d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c41350000000000000000000000009502f900001567e1bb8d6920415049207068c3a26e2074c3ad6368077265662d303034",
+      "intent_hash": "79259df0022e18f345eea6e2f7154d689965613cd52e5484f7cf2cfdb645bd80",
+      "decision_id": "e5171dffd15b463fa0ce991eac3621574f9ae54bc5a13811dccc497fb6a7ac65",
+      "memo_hash": "209a25ba0106698dff500dc6874a3691f55b6103ebe889c600ca4cfc7d6e3826"
+    },
+    {
+      "name": "empty-optional-strings",
+      "intent": {
+        "agentId": "a",
+        "serviceId": "s",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "1000000000",
+        "purpose": "",
+        "clientRef": ""
+      },
+      "policy_version": 4294967295,
+      "canonical_hex": "41454749532d494e54454e542d7631016101733d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c41350000000000000000000000003b9aca00000000",
+      "intent_hash": "b24f3ee59d66bbbebbb3843a312883ab946f90ad8f1a169c41d4755800cf0e2b",
+      "decision_id": "b6a13bdb6599d22aa770501440d486969bde7ec3393fa9c9dc94b8f97baf523c",
+      "memo_hash": "da1bb6d019e1d9da68043f55172e6b036dc5b50e5783e5e1eb84b790aa9dff47"
+    },
+    {
+      "name": "prefix-ambiguity-guard-a",
+      "intent": {
+        "agentId": "ab",
+        "serviceId": "c",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "50000000",
+        "purpose": "p",
+        "clientRef": "r"
+      },
+      "policy_version": 1,
+      "canonical_hex": "41454749532d494e54454e542d763102616201633d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c413500000000000000000000000002faf0800001700172",
+      "intent_hash": "f25b36224705a9b18c8f81c9358f95b98b543780cff99f78d59f76d688aeb0f7",
+      "decision_id": "241cbb960c3f6b39e5b7b29e96724c0515b492036714510b51a8d5bcf5580900",
+      "memo_hash": "00dc0260d4d9f121cbe72a6b180862730e659af1c8b8125ea535af504e819696"
+    },
+    {
+      "name": "prefix-ambiguity-guard-b",
+      "intent": {
+        "agentId": "a",
+        "serviceId": "bc",
+        "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+        "amount": "50000000",
+        "purpose": "p",
+        "clientRef": "r"
+      },
+      "policy_version": 1,
+      "canonical_hex": "41454749532d494e54454e542d763101610262633d555344433a4742424434374946364c574b3750374d44455653435752374450555756334e59334454514556464c344e415434415148335a4c4c464c413500000000000000000000000002faf0800001700172",
+      "intent_hash": "2b1ad0b6b7b501ab1e1ad6814d66313a30648969f29c3ec6b3c421c06ed91b88",
+      "decision_id": "0501372f93e57336edf14bc1f0afcf816155405caee2b43e194e91b1e163ecd5",
+      "memo_hash": "23f23d34a1f3b66c21ed7ada2aae5c3f02b46753be7afab7aace052a726dab69"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "aegis",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.18.2",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "contract:build": "cargo build -p aegis-authorization --target wasm32v1-none --release",
+    "contract:test": "cargo test",
+    "bindings": "bash scripts/gen-bindings.sh",
+    "vectors:gen": "pnpm --filter @aegis/canonical vectors:gen"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}

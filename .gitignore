@@ -1,0 +1,16 @@
+node_modules/
+dist/
+target/
+.env
+.env.*
+!.env.example
+*.wasm
+.DS_Store
+packages/bindings/*
+!packages/bindings/README.md
+!packages/bindings/.gitkeep
+test_snapshots/
+
+# Original SOW from the client — keep local, do not commit
+docs/*.pdf
+

@@ -1,0 +1,6 @@
+[toolchain]
+channel = "stable"
+# minimal: drops rust-docs (hundreds of MB) — neither CI nor dev machines need it
+profile = "minimal"
+components = ["rustfmt", "clippy"]
+targets = ["wasm32v1-none"]

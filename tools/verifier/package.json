@@ -1,0 +1,20 @@
+{
+  "name": "@aegis/verifier",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "aegis-verify": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@aegis/canonical": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1"
+  }
+}
