@@ -28,7 +28,6 @@ export interface IntentDisplay {
 }
 
 export type AegisApiLookup =
-  | { status: "disabled" }
   | { status: "found"; data: IntentDisplay }
   | { status: "absent" }
   | { status: "error"; message: string };
@@ -38,9 +37,11 @@ function pickString(value: unknown): string | null {
 }
 
 export async function fetchIntentDisplay(intentHash: Hex32): Promise<AegisApiLookup> {
-  if (env.aegisApiUrl === null) return { status: "disabled" };
-
   try {
+    // `env.aegisApiUrl` is "" in the normal deployment, which makes this a
+    // same-origin relative request to the gateway that served this bundle.
+    // There is no "not configured" case any more: an unreachable API is an
+    // `error`, and the on-chain evidence above it is complete either way.
     const res = await fetch(`${env.aegisApiUrl}/v1/intents/${intentHash}`, {
       headers: { accept: "application/json" },
     });

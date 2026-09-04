@@ -21,7 +21,11 @@ interface ImportMetaEnv {
   readonly VITE_STELLAR_EXPERT_NETWORK?: string;
   /** Optional: lets the console print "USDC" beside the raw SAC address. */
   readonly VITE_USDC_SAC_ADDRESS?: string;
-  /** Optional: base URL of the AEGIS API. Supplies NON-authoritative display fields only. */
+  /**
+   * Optional: base URL of the AEGIS API, which supplies NON-authoritative display
+   * fields only. Unset means same-origin, which is right whenever the gateway is
+   * serving this bundle — i.e. in every deployment of this repo.
+   */
   readonly VITE_AEGIS_API_URL?: string;
   /** Optional: comma-separated intent references to offer as example deep links. */
   readonly VITE_SAMPLE_INTENTS?: string;

@@ -1,14 +1,22 @@
-# AEGIS gateway + executor — TESTNET ONLY.
+# AEGIS gateway + executor + console — TESTNET ONLY.
 #
-# One image, two entry points. The gateway (D2) is the long-running server and
-# is what the container starts. The executor (D3) is an operator-driven CLI that
-# ships in the same image so a settlement can be run against the same code, the
-# same registry and the same keys the gateway is using:
+# One image, three deliverables, ONE Railway service and one URL:
+#
+#   /              the reviewer console (D4), static, from apps/console/dist
+#   /intent/:ref   the console again — SPA deep link, handled by the gateway
+#   /v1/*          the gateway API (D2)
+#   /health        the Railway health check
+#
+# The gateway (D2) is the long-running server and is what the container starts.
+# It also serves the console's built files; see apps/gateway/src/staticConsole.ts
+# for the path constraints that go with holding signing keys in a process that
+# also serves files.
+#
+# The executor (D3) is an operator-driven CLI that ships in the same image so a
+# settlement can be run against the same code, the same registry and the same
+# keys the gateway is using:
 #
 #   node apps/executor/dist/cli.js settle --decision <64-hex>
-#
-# The console (D4) is NOT here. It is a static bundle built by Cloudflare Pages;
-# see DEPLOY.md.
 #
 # ⚠️ SCALING: this image must run at exactly one replica. The reason is in
 # railway.json's `numReplicas` and spelled out in DEPLOY.md — the executor holds
@@ -50,7 +58,36 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# Build the two services and THEIR DEPENDENCIES — the console is excluded.
+# ⚠️ The console's configuration is inlined at BUILD time, so it has to be here.
+#
+# Vite substitutes static `import.meta.env.VITE_*` accesses into the bundle when
+# it compiles, and picks up any `VITE_`-prefixed variable already in the
+# environment. Railway exposes service variables to the build, but only for the
+# names a Dockerfile declares as ARG — an undeclared one is simply absent, and an
+# absent required one produces a console that renders its configuration screen
+# instead of evidence. Adding a `VITE_*` variable means adding it HERE too.
+#
+# The consequence, stated once: changing any of these needs a REBUILD, not a
+# redeploy, which in a single-image deploy means a fresh image. DEPLOY.md §5.
+#
+# Declared after `COPY . .` on purpose — a changed value invalidates only the
+# build layer below, never the `pnpm install` layer above it.
+ARG VITE_STELLAR_RPC_URL
+ARG VITE_STELLAR_NETWORK_PASSPHRASE
+ARG VITE_CONTRACT_ID
+ARG VITE_STELLAR_EXPERT_NETWORK
+ARG VITE_USDC_SAC_ADDRESS
+ARG VITE_AEGIS_API_URL
+ARG VITE_SAMPLE_INTENTS
+ENV VITE_STELLAR_RPC_URL=$VITE_STELLAR_RPC_URL \
+    VITE_STELLAR_NETWORK_PASSPHRASE=$VITE_STELLAR_NETWORK_PASSPHRASE \
+    VITE_CONTRACT_ID=$VITE_CONTRACT_ID \
+    VITE_STELLAR_EXPERT_NETWORK=$VITE_STELLAR_EXPERT_NETWORK \
+    VITE_USDC_SAC_ADDRESS=$VITE_USDC_SAC_ADDRESS \
+    VITE_AEGIS_API_URL=$VITE_AEGIS_API_URL \
+    VITE_SAMPLE_INTENTS=$VITE_SAMPLE_INTENTS
+
+# Build all three deliverables and THEIR DEPENDENCIES.
 #
 # The TRAILING dots are load-bearing. `--filter "<pkg>..."` selects the package
 # plus everything it depends on; leading dots ("...<pkg>") would select its
@@ -58,7 +95,8 @@ COPY . .
 # container that dies at boot on a missing `packages/canonical/dist`.
 #
 # The closure this selects, verified against `pnpm list`:
-#   @aegis/gateway, @aegis/executor, @aegis/bindings, @aegis/canonical, @aegis/receipt
+#   @aegis/gateway, @aegis/executor, @aegis/console,
+#   @aegis/bindings, @aegis/canonical, @aegis/receipt
 #
 # `packages/bindings` is committed and generated offline from the contract wasm,
 # so nothing in this build needs a Rust toolchain or the `stellar` CLI.
@@ -66,7 +104,7 @@ COPY . .
 # Not `pnpm deploy`: pnpm 10 changed it to require `inject-workspace-packages`
 # or `--legacy`, and the workspace is small enough that copying it whole is the
 # cheaper correctness bet. Image size does not matter for this project.
-RUN pnpm --filter "@aegis/gateway..." --filter "@aegis/executor..." build
+RUN pnpm --filter "@aegis/gateway..." --filter "@aegis/executor..." --filter "@aegis/console..." build
 
 # -------------------------------------------------------------- runtime stage
 
@@ -100,6 +138,9 @@ WORKDIR /app
 # The whole built workspace, including node_modules. pnpm's node_modules layout
 # is relative symlinks into `/app/node_modules/.pnpm`, so it survives this copy
 # intact only because the ENTIRE tree moves together and the path stays `/app`.
+#
+# This is also how `/app/apps/console/dist` reaches the runtime image, which is
+# the directory — and the only directory — the gateway serves files from.
 COPY --from=build --chown=node:node /app /app
 
 # The executor's SQLite journal.

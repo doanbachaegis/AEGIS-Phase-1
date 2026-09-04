@@ -2,7 +2,9 @@
  * A deep link has to resolve. SOW §6.1 D4 says the evidence is "a public link to the
  * console" plus a list of intent references, which means /intent/<ref> must be a real
  * URL a reviewer can paste into a fresh tab — not a client-side state the app forgets
- * on reload. `public/_redirects` gives the static host the matching SPA fallback.
+ * on reload. The matching SPA fallback is the GATEWAY's — it serves this bundle
+ * and returns index.html for an unrouted path, carefully not doing so for /v1/*
+ * (apps/gateway/src/staticConsole.ts).
  *
  * Hand-rolled rather than pulled from a router library: two routes, no nesting, no
  * loaders. A dependency here would be more code than the code.

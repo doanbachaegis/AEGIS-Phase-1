@@ -1,10 +1,17 @@
 /**
- * Cross-origin access for the reviewer console (D4).
+ * Cross-origin access to this API.
  *
- * The console is a static bundle on Cloudflare Pages and the gateway is a
- * container on Railway, so every call the console makes to this API is
- * cross-origin and the browser will not read the response without an
- * `access-control-allow-origin` header naming the console's exact origin.
+ * **The console no longer needs this.** It is served by this same process, from
+ * `apps/console/dist`, at this same origin — one Railway service, one URL — so
+ * the calls it makes to `/v1/...` are same-origin and a browser sends no
+ * `Origin` header at all. Nothing has to be configured here for the console to
+ * work, and `DEPLOY.md` says so where an operator will look.
+ *
+ * This module survives because "the console" is not the same thing as "a
+ * browser". Anything ELSE calling this API from a page — a reviewer's scratch
+ * page, a second front end, a notebook — is cross-origin and still needs an
+ * allowlist entry. Deleting the plugin would make that a code change instead of
+ * a configuration change.
  *
  * **What is actually at stake is smaller than it looks.** The console reads the
  * authoritative evidence — the decision, its verdict and reason, the settlement
@@ -12,12 +19,12 @@
  * `access-control-allow-origin: *`. This gateway supplies only the
  * NON-authoritative display fields (`purpose`, `client_ref`, the settlement
  * transaction hash), each already tagged "display only" in the UI. So a
- * misconfigured allowlist here degrades the console; it cannot break it. That
- * asymmetry is the §6.3 invariant — "the chain is the evidence, the API is a
- * convenience" — paying rent at deploy time.
+ * misconfigured allowlist here degrades a cross-origin caller; it cannot break
+ * the evidence. That asymmetry is the §6.3 invariant — "the chain is the
+ * evidence, the API is a convenience" — paying rent at deploy time.
  *
  * Consequently this defaults CLOSED. `CORS_ORIGIN` unset means no CORS headers
- * at all, exactly as before this module existed.
+ * at all, which is now the CORRECT setting for a normal deployment.
  */
 
 /**
@@ -26,18 +33,18 @@
  * Three forms, and the wildcard form is the reason this is not a plain
  * `Array.includes`:
  *
- * - `*`                              — any origin. Convenient; see the warning below.
- * - `https://aegis.pages.dev`        — that origin and no other.
- * - `https://*.aegis.pages.dev`      — any single label in place of the `*`.
+ * - `*`                             — any origin. Convenient; see the warning below.
+ * - `https://tools.example.org`     — that origin and no other.
+ * - `https://*.up.railway.app`      — any single label in place of the `*`.
  *
- * The third form exists because Cloudflare Pages gives every branch and every
- * commit its own `<hash>.<project>.pages.dev` preview origin. Without it the
- * allowlist would have to be rewritten on each preview deploy, and the usual
- * response to that friction is `*`.
+ * The third form exists because a provider that mints a fresh subdomain per
+ * environment (Railway's PR environments, a preview host) would otherwise force
+ * the allowlist to be rewritten on every deploy — and the usual response to that
+ * friction is `*`.
  *
- * The wildcard matches ONE label, never a dot: `https://*.aegis.pages.dev`
- * admits `https://abc123.aegis.pages.dev` and rejects
- * `https://evil.com.aegis.pages.dev.attacker.test`. Scheme and port are
+ * The wildcard matches ONE label, never a dot: `https://*.up.railway.app`
+ * admits `https://aegis-pr-7.up.railway.app` and rejects
+ * `https://evil.com.up.railway.app.attacker.test`. Scheme and port are
  * compared literally in every form.
  */
 function compile(pattern: string): (origin: string) => boolean {
@@ -82,8 +89,8 @@ export function originAllowed(patterns: readonly string[], origin: string): bool
  *
  * `credentials` stays off: the gateway has no cookie or session of any kind, so
  * turning it on would only forbid the `*` pattern while buying nothing. The
- * method list is the console's actual surface — it reads decisions and posts
- * intents; it never deletes anything.
+ * method list is the API's actual surface — decisions are read and intents are
+ * posted; nothing is ever deleted.
  */
 export function corsOptions(patterns: readonly string[]): {
   origin: (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => void;

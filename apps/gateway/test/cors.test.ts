@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { corsOptions, originAllowed, parseCorsOrigins } from "../src/cors.js";
 
-const PAGES = "https://aegis-console.pages.dev";
-const PREVIEW = "https://*.aegis-console.pages.dev";
+/**
+ * The console is same-origin now, so these stand in for the OTHER browser
+ * callers `CORS_ORIGIN` still exists for — and for a provider that mints a
+ * fresh subdomain per environment, which is what the wildcard form is for.
+ */
+const APEX = "https://aegis-console.up.railway.app";
+const PREVIEW = "https://*.up.railway.app";
 
 describe("parseCorsOrigins", () => {
   it("treats unset and blank as no CORS at all", () => {
@@ -12,22 +17,22 @@ describe("parseCorsOrigins", () => {
   });
 
   it("splits a comma-separated list and trims each entry", () => {
-    expect(parseCorsOrigins(` ${PAGES} , ${PREVIEW} `)).toEqual([PAGES, PREVIEW]);
+    expect(parseCorsOrigins(` ${APEX} , ${PREVIEW} `)).toEqual([APEX, PREVIEW]);
   });
 });
 
 describe("originAllowed", () => {
   it("matches an exact origin and nothing else", () => {
-    expect(originAllowed([PAGES], PAGES)).toBe(true);
-    expect(originAllowed([PAGES], "https://aegis-console.pages.dev.attacker.test")).toBe(false);
+    expect(originAllowed([APEX], APEX)).toBe(true);
+    expect(originAllowed([APEX], "https://aegis-console.up.railway.app.attacker.test")).toBe(false);
     // Scheme is part of the origin; an http:// twin is a different origin.
-    expect(originAllowed([PAGES], "http://aegis-console.pages.dev")).toBe(false);
+    expect(originAllowed([APEX], "http://aegis-console.up.railway.app")).toBe(false);
   });
 
-  it("lets `*` stand for exactly one label, which is what Pages previews need", () => {
-    expect(originAllowed([PREVIEW], "https://abc123.aegis-console.pages.dev")).toBe(true);
-    // The apex is not a preview: the pattern requires a label before the dot.
-    expect(originAllowed([PREVIEW], PAGES)).toBe(false);
+  it("lets `*` stand for exactly one label, which is what a per-environment subdomain needs", () => {
+    expect(originAllowed([PREVIEW], "https://aegis-pr-7.up.railway.app")).toBe(true);
+    // The bare apex is not a match: the pattern requires a label before the dot.
+    expect(originAllowed([PREVIEW], "https://up.railway.app")).toBe(false);
   });
 
   /**
@@ -36,7 +41,7 @@ describe("originAllowed", () => {
    * attacker-controlled domain satisfy a pattern written for one subdomain.
    */
   it("refuses a dot inside the wildcard segment", () => {
-    expect(originAllowed([PREVIEW], "https://evil.attacker.aegis-console.pages.dev")).toBe(false);
+    expect(originAllowed([PREVIEW], "https://evil.attacker.up.railway.app")).toBe(false);
   });
 
   it("allows any origin under `*`", () => {
@@ -44,8 +49,8 @@ describe("originAllowed", () => {
   });
 
   it("accepts an origin matching any one entry of the list", () => {
-    expect(originAllowed([PAGES, PREVIEW], "https://abc123.aegis-console.pages.dev")).toBe(true);
-    expect(originAllowed([PAGES, PREVIEW], "https://other.example")).toBe(false);
+    expect(originAllowed([APEX, PREVIEW], "https://aegis-pr-7.up.railway.app")).toBe(true);
+    expect(originAllowed([APEX, PREVIEW], "https://other.example")).toBe(false);
   });
 });
 
@@ -64,15 +69,15 @@ describe("corsOptions", () => {
    * allowlist rejected those, enabling CORS would take the service down.
    */
   it("allows requests that carry no Origin header", () => {
-    expect(decide([PAGES], undefined)).toBe(true);
+    expect(decide([APEX], undefined)).toBe(true);
   });
 
   it("applies the allowlist to browser requests", () => {
-    expect(decide([PAGES], PAGES)).toBe(true);
-    expect(decide([PAGES], "https://other.example")).toBe(false);
+    expect(decide([APEX], APEX)).toBe(true);
+    expect(decide([APEX], "https://other.example")).toBe(false);
   });
 
   it("never enables credentials — the gateway has no session to protect", () => {
-    expect(corsOptions([PAGES]).credentials).toBe(false);
+    expect(corsOptions([APEX]).credentials).toBe(false);
   });
 });

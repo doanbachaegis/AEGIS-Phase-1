@@ -631,13 +631,6 @@ function SupplementaryCard({
       }
     >
       {isPending && <p className="text-sm text-slate-600">Loading…</p>}
-      {lookup?.status === "disabled" && (
-        <p className="text-sm text-slate-600">
-          No AEGIS API is configured for this deployment (
-          <code className="font-mono">VITE_AEGIS_API_URL</code> is unset). The on-chain evidence
-          above is unaffected.
-        </p>
-      )}
       {lookup?.status === "absent" && (
         <p className="text-sm text-slate-600">
           The AEGIS API has no record of this intent. That says nothing about the decision above,

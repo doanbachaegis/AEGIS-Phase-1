@@ -11,6 +11,13 @@
 # heading is there for that reason, not to save bytes.
 
 # --- host build output: the image rebuilds all of this from source ---
+#
+# `**/dist` now covers `apps/console/dist` too, and that is deliberate: the image
+# BUILDS the console (the Dockerfile's `--filter "@aegis/console..."`) and the
+# gateway serves it from `/app/apps/console/dist`. Letting a host build into the
+# context would ship whatever `VITE_*` values happened to be on a workstation
+# instead of the ones the image was built with — a console silently pointed at
+# the wrong contract, which looks like working software.
 node_modules
 **/node_modules
 **/dist
@@ -32,9 +39,18 @@ Dockerfile
 # call `process.loadEnvFile()` on a `.env` sitting next to them, so a stray
 # `.env` in the image would silently take precedence over the variables Railway
 # injects — a deploy that ignores its own configuration and gives no sign of it.
-.env
-.env.*
-!.env.example
+#
+# `**/` and not a bare `.env`: a bare pattern matches the context ROOT only, and
+# this workspace also has `apps/console/.env`. That file holds nothing secret —
+# it is public `VITE_*` configuration — but it is a workstation's copy, and the
+# console is now built INSIDE the image. Vite gives `process.env` precedence
+# over a `.env` file, so the Dockerfile's build args win for every name it
+# declares as ARG; a name it does NOT declare has no such protection and would
+# be taken from whatever a developer last left in that file. Excluding every
+# `.env` at every depth is the rule with no exceptions to remember.
+**/.env
+**/.env.*
+!**/.env.example
 
 # The client's SOW. Deliberately kept out of git (see .gitignore) and equally
 # deliberately kept out of any image that might be pushed to a registry.

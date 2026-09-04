@@ -93,9 +93,19 @@ alone. The root entry re-exports it, so every existing importer is untouched.
 
 `/intent/:ref` and `/decision/:ref` are real URLs — §6.1 D4 makes the evidence "a public
 link to the console" plus a list of intent references, so a shared link has to resolve in
-a cold tab. `public/_redirects` gives Cloudflare Pages the SPA fallback. Either
-identifier works in the lookup box: the console tries `decision_by_intent` first and
-falls back to `get_decision`.
+a cold tab. Either identifier works in the lookup box: the console tries
+`decision_by_intent` first and falls back to `get_decision`.
+
+**The SPA fallback is the gateway's.** This bundle is served by the gateway process from
+`apps/console/dist`, at the same origin as the API — one Railway service, one URL. The
+fallback lives in `apps/gateway/src/staticConsole.ts`, which serves `index.html` for a
+deep link and is careful *not* to do so for `/v1/*`: an API miss stays a JSON 404, and
+`apps/gateway/test/staticConsole.test.ts` pins that. There is no `public/_redirects` —
+that was Cloudflare/Netlify syntax and nothing reads it now.
+
+Same-origin also means `VITE_AEGIS_API_URL` is normally unset: `src/aegisApi.ts` calls
+`/v1/...` relatively. `vite.config.ts` proxies `/v1` to a local gateway so `pnpm dev`
+behaves the same way.
 
 Configuration is `import.meta.env.VITE_*`, typed in `src/vite-env.d.ts` and validated by
 `requireEnv` in `src/env.ts`, which **throws at module load**. `main.tsx` imports the app

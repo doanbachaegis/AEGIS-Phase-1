@@ -17,6 +17,7 @@ import { asContractFailure, httpForContractFailure, reasonName, verdictName } fr
 import { openStore, type IntentStore } from "./db/store.js";
 import { jsonSafe } from "./json.js";
 import { Registry } from "./registry.js";
+import { defaultConsoleRoot, registerConsole } from "./staticConsole.js";
 import {
   ApprovalsQuery,
   DecisionIdParam,
@@ -792,13 +793,19 @@ export async function buildServer(config: GatewayConfig): Promise<FastifyInstanc
     },
   });
 
-  // Before any route: the console is served from a different origin than this
-  // API, and a preflight has to be answered by the plugin rather than by a
-  // route. Skipped entirely when `CORS_ORIGIN` is unset, which leaves the
-  // gateway same-origin-only (see cors.ts).
+  // Before any route, so a preflight is answered by the plugin rather than by a
+  // route. The console no longer needs this — it is served by this same process
+  // at this same origin — but `CORS_ORIGIN` still governs anything ELSE calling
+  // the API from a browser, and it still defaults closed (see cors.ts).
   if (config.corsOrigins.length > 0) {
     await app.register(cors, corsOptions(config.corsOrigins));
   }
+
+  // Before `registerRoutes`, because the `onRoute` guard inside it only sees
+  // routes registered afterwards. Everything the console needs hangs off the
+  // not-found handler, so the API routes below always win by construction: an
+  // API miss stays a JSON 404 and never becomes `index.html` with status 200.
+  await registerConsole(app, { root: defaultConsoleRoot() });
 
   const registry = Registry.load(config.registryPath, config.servicesPath, config.contractId);
   const agentSigner = new InProcessAgentSigner(config.agentSecrets, config.networkPassphrase);
@@ -840,8 +847,9 @@ export async function buildServer(config: GatewayConfig): Promise<FastifyInstanc
       agents: agentSigner.addresses.length,
       registry_version: registry.registryVersion,
       database: store.mode,
-      // A console that cannot reach this API looks identical to a console
-      // pointed at the wrong URL, so the allowlist is stated at boot.
+      // The console is same-origin now, so this allowlist governs only OTHER
+      // browser callers. Stated at boot anyway: "disabled" here plus a
+      // cross-origin caller is a five-minute debugging session otherwise.
       cors: config.corsOrigins.length > 0 ? config.corsOrigins.join(",") : "disabled",
     },
     "gateway ready",

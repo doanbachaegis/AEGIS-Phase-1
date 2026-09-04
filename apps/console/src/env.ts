@@ -40,8 +40,17 @@ export interface ConsoleEnv {
   readonly stellarExpertNetwork: string;
   /** Null when unset — the console then prints the raw SAC address with no friendly name. */
   readonly usdcSacAddress: string | null;
-  /** Null when unset — the supplementary AEGIS API section is then reported as not configured. */
-  readonly aegisApiUrl: string | null;
+  /**
+   * Base URL of the AEGIS API, with no trailing slash.
+   *
+   * The EMPTY STRING is the normal value and means same-origin: the gateway
+   * serves this bundle, so `/v1/...` reaches the API that served the page —
+   * correct by construction, and correct without a rebuild when the deployment
+   * moves to a new domain. `VITE_AEGIS_API_URL` overrides it, which is only
+   * needed when the console is NOT being served by the gateway (`vite dev`
+   * against a remote gateway, or a copy of the bundle hosted elsewhere).
+   */
+  readonly aegisApiUrl: string;
   readonly sampleIntents: readonly string[];
 }
 
@@ -88,7 +97,9 @@ function readEnv(): ConsoleEnv {
     contractId,
     stellarExpertNetwork: optional(import.meta.env.VITE_STELLAR_EXPERT_NETWORK) ?? "testnet",
     usdcSacAddress: optional(import.meta.env.VITE_USDC_SAC_ADDRESS),
-    aegisApiUrl: optional(import.meta.env.VITE_AEGIS_API_URL)?.replace(/\/+$/, "") ?? null,
+    // Trailing slashes stripped so the call sites can concatenate a rooted path.
+    // Unset collapses to "", which is same-origin — see the field's comment.
+    aegisApiUrl: optional(import.meta.env.VITE_AEGIS_API_URL)?.replace(/\/+$/, "") ?? "",
     sampleIntents: (optional(import.meta.env.VITE_SAMPLE_INTENTS) ?? "")
       .split(",")
       .map((s) => s.trim())
