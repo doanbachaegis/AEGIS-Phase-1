@@ -27,8 +27,16 @@ pub enum ReasonCode {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Verdict {
+    /// The intent passed every rule in the active policy. Settlement may proceed
+    /// once the executor re-reads this decision and marks it settled.
     Approved = 0,
+    /// The intent broke a rule, or the owner declined it. This is a successful
+    /// governance outcome recorded permanently on-chain, not a failed call —
+    /// read `reason_code` for which rule decided it.
     Rejected = 1,
+    /// Above `approval_threshold` but within `per_intent_cap`: the policy defers
+    /// to a human. Nothing is spent against the window until the owner approves
+    /// through resolve().
     RequiresApproval = 2,
 }
 
@@ -36,7 +44,11 @@ pub enum Verdict {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u32)]
 pub enum AgentStatus {
+    /// The agent may spend within its policy.
     Active = 0,
+    /// The agent is refused at authorize(), and any decision it already holds is
+    /// refused at resolve() and mark_settled() too — revocation takes effect
+    /// immediately (SOW §5.2 scenario 6).
     Revoked = 1,
 }
 

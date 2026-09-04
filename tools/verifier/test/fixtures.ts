@@ -1,6 +1,7 @@
+import { readFileSync } from "node:fs";
 /**
  * Fixtures modelled on the LIVE testnet decision
- * `2fecca84…b8bf761e` (contract CAAD6727…5YTNTRPP, policy version 1,
+ * `2fecca84…b8bf761e` (a superseded contract instance, policy version 1,
  * 125000000 stroops, memo 44bdf40b…d1e0b3de).
  *
  * Using the real values rather than invented ones means the fixtures stay
@@ -16,7 +17,13 @@ import type { ChainDecision } from "../src/chain.js";
 import type { HorizonOperation, HorizonTransaction } from "../src/horizon.js";
 
 export const PASSPHRASE = "Test SDF Network ; September 2015";
-export const CONTRACT_ID = "CAAD6727VZDKH77IVZJ526B3YENMMU26DGHUEU3B4D6KK3JS5YTNTRPP";
+// Read from the published registry rather than pinning a literal. A test asserts
+// that the fixture and the real services.json agree, so a redeploy would
+// otherwise turn this suite red for a reason that has nothing to do with the
+// verifier.
+export const CONTRACT_ID: string = JSON.parse(
+  readFileSync(new URL("../../../services.json", import.meta.url), "utf8"),
+).network.contract_id;
 export const DECISION_ID = "2fecca8477b306042f3206daffd12e1c40c8b33c0d75f811a647ff98b8bf761e";
 export const INTENT_HASH = "c51c74d5c445350d848e85fe3bb9cb1949fb73675893a09e654126bfb93b7a10";
 export const MEMO_HEX = "44bdf40bed60f3b99b98d3cf298497b63dece3d9056d260a6544136cd1e0b3de";
