@@ -1,0 +1,92 @@
+AEGIS - adversarial + scenario test suite output (SOW 6.1 D1)
+Command : cargo test
+Captured: 2026-09-04T08:00:41Z
+Toolchain: rustc 1.98.1 (48a229cea 2026-09-01)
+Contract: contracts/authorization (Soroban, soroban-sdk test env - not testnet)
+
+================================================================
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/lib.rs (target/debug/deps/aegis_authorization-f59198c92e9ecb1e)
+
+running 55 tests
+test test::a_third_party_cannot_authorize_by_naming_the_owner_as_caller - should panic ... ok
+test test::double_init_fails ... ok
+test test::non_owner_cannot_set_operator - should panic ... ok
+test test::non_owner_cannot_resolve - should panic ... ok
+test test::every_entry_point_bumps_the_instance_ttl ... ok
+test test::double_resolve_after_rejection_also_fails ... ok
+test test::decision_is_readable_by_intent_hash ... ok
+test test::a_caller_who_signs_but_is_neither_owner_nor_operator_is_refused ... ok
+test test::a_third_party_cannot_mark_settled_by_naming_the_owner_as_caller - should panic ... ok
+test test::double_resolve_fails ... ok
+test test::double_settle_fails ... ok
+test test::cannot_settle_decision_that_is_not_approved ... ok
+test test::non_positive_amount_is_rejected ... ok
+test test::operator_alone_cannot_authorize_for_an_agent_that_did_not_sign - should panic ... ok
+test test::operator_cannot_change_policy - should panic ... ok
+test test::operator_cannot_revoke_agent - should panic ... ok
+test test::on_chain_memo_hash_matches_sow_formula ... ok
+test test::original_reason_code_survives_an_approval ... ok
+test test::operator_can_mark_settled ... ok
+test test::operator_can_call_authorize ... ok
+test test::original_reason_code_survives_an_owner_rejection ... ok
+test test::original_reason_code_survives_a_failed_re_judgement ... ok
+test test::owner_can_authorize_when_no_operator_is_configured ... ok
+test test::owner_rejection_does_not_count_toward_window ... ok
+test test::owner_can_authorize_while_a_distinct_operator_is_configured ... ok
+test test::original_reason_code_equals_reason_code_when_nothing_is_ever_re_judged ... ok
+test test::owner_can_mark_settled_while_a_distinct_operator_is_configured ... ok
+test test::rejected_decision_does_not_count_toward_window ... ok
+test test::resolve_on_non_pending_decision_fails ... ok
+test test::replay_of_a_settled_intent_hash_returns_the_original_decision ... ok
+test test::requires_approval_counts_toward_window_only_when_owner_approves ... ok
+test test::resolve_refuses_to_approve_a_revoked_agent ... ok
+test test::resolve_re_evaluates_against_the_newer_policy ... ok
+test test::replay_does_not_increase_window_spend ... ok
+test test::resolved_decision_keeps_the_policy_version_that_named_it ... ok
+test test::resolved_policy_version_is_recorded_on_an_owner_rejection ... ok
+test test::revoke_agent_bumps_the_policy_ttl ... ok
+test test::resolved_policy_version_is_recorded_when_the_re_judgement_rejects ... ok
+test test::resolved_policy_version_is_none_until_resolve_runs ... ok
+test test::resolved_policy_version_records_the_version_the_re_judgement_ran_under ... ok
+test test::scenario_1_compliant_intent_is_approved ... ok
+test test::scenario_2_exceeds_per_intent_cap ... ok
+test test::scenario_3_service_not_in_whitelist ... ok
+test test::scenario_4_asset_mismatches_policy ... ok
+test test::scenario_7_replay_returns_original_decision ... ok
+test test::scenario_6_revoked_agent_is_rejected ... ok
+test test::scenario_5_above_threshold_below_cap_escalates_then_owner_resolves ... ok
+test test::the_agent_must_still_sign_even_when_the_caller_is_the_owner - should panic ... ok
+test test::settlement_is_refused_after_the_agent_is_revoked ... ok
+test test::stranger_cannot_mark_settled ... ok
+test test::unregistered_agent_is_rejected ... ok
+test test::set_policy_bumps_version_and_leaves_existing_decisions_untouched ... ok
+test test::cumulative_window_boundary ... ok
+test test::resolve_cannot_push_the_window_past_its_cap ... ok
+test test::window_resets_in_new_epoch ... ok
+
+test result: ok. 55 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.49s
+
+     Running unittests src/lib.rs (target/debug/deps/aegis_canonical-265bccb77b7cc4c3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vectors.rs (target/debug/deps/vectors-f6d825f52a4a9ebc)
+
+running 4 tests
+test length_prefix_prevents_ambiguity ... ok
+test memo_preimage_is_68_bytes ... ok
+test rejects_non_positive_amount ... ok
+test matches_typescript_test_vectors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests aegis_canonical
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

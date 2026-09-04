@@ -98,30 +98,52 @@ instead of a runtime failure.
 
 | | Deliverable | Status |
 |---|---|---|
-| D1 | On-Chain Authorization Contract | 🟢 contract + test suite done, **deployed on testnet** (see below) |
-| D2 | Intent Gateway & Decision Binding | 🔴 skeleton — bindings and a live contract are now available |
-| D3 | Decision-Gated Settlement | 🔴 skeleton — bindings and a live contract are now available |
-| D4 | Reviewer Console & Evidence Pack | 🔴 skeleton |
+| D1 | On-Chain Authorization Contract | 🟢 **done** — deployed on testnet, **70/70** across the seven §5.2 scenarios |
+| D2 | Intent Gateway & Decision Binding | 🟢 **done** — **20/20** submissions, hashes reproducible, 0 bypasses |
+| D3 | Decision-Gated Settlement | 🟢 **done** — **10/10** settled and verified, **10/10** replays refused |
+| D4 | Reviewer Console & Evidence Pack | 🟡 **evidence pack done; console implemented but not deployed** |
 
-### D1 on testnet
+The evidence for all four lives in [`evidence/`](evidence/). Start at
+[`evidence/README.md`](evidence/README.md) — it explains how to verify each claim without trusting
+us, and [`evidence/INDEX.md`](evidence/INDEX.md) maps every SOW §6.1 artifact to the file that
+satisfies it, including the ones still outstanding.
 
-The contract is live and has ruled on a real intent: an **Approved** decision for **125000000
-stroops** (12.5 USDC) at **ledger 4493376**, whose on-chain `memo_hash()` view returns exactly the
-value `@aegis/canonical` computes off-chain. That is the Rust ↔ TS parity CI asserts against
-`vectors/`, now confirmed against the chain rather than against a fixture.
+**The one gap:** `apps/console` is implemented but has no public URL, so the three §6.1 D4 artifacts
+that need a live page — the public link, the two screenshots, and the "70/70 viewable" half of the
+results table — do not exist yet. Everything they would show is in `evidence/` and readable on
+chain today; what is missing is the no-setup way to see it.
 
+### On testnet
+
+Contract [`CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA`](https://stellar.expert/explorer/testnet/contract/CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA)
+holds the decisions from both evidence runs — **60 distinct** from D1's 70 authorization calls and
+**18 distinct** from D2's 20 submissions (the differences are the replays, which return the original
+decision rather than writing a new one) — and has marked 10 of them settled against real testnet
+USDC payments. Read any of them back with nothing but the contract ID:
+
+```bash
+stellar contract invoke \
+  --id CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA \
+  --network testnet --send=no --source-account <any-funded-testnet-account> \
+  -- get_decision --decision_id b62b0ce89c7e3f0938816b327dc3752b7df5b6ff4e50f50e01afb6a0a49a97ec
 ```
-decision_id  2fecca8477b306042f3206daffd12e1c40c8b33c0d75f811a647ff98b8bf761e
-```
 
-The instance that produced it is `CC5Z6O353YCXNX3TP2SKRZHBHHR3MFP4Y3VW7S57O3NYLU7ET5RRXOS4` —
-recorded so the decision above can be looked up, **not pinned as final**. A redeploy is expected
-shortly, and a dead address in the first file a reviewer opens is worse than no address. The
-authoritative value is `CONTRACT_ID` in the environment (`.env.example`), which the gateway, the
-executor and the console all read anyway; `packages/bindings` embeds no contract address either,
-so a redeploy is a config change and not a code change.
+`--send=no` makes that a simulation: it reads, costs nothing, and writes nothing. Reference values
+for every decision are in [`evidence/d4-intent-references.md`](evidence/d4-intent-references.md).
 
-## Before writing any more code
+The contract ID is **not pinned in code**. The authoritative value is `CONTRACT_ID` in the
+environment (`.env.example`), which the gateway, the executor and the console all read;
+`packages/bindings` embeds no contract address either, so a redeploy is a config change rather than
+a code change.
+
+> An earlier instance, `CC5Z6O353YCXNX3TP2SKRZHBHHR3MFP4Y3VW7S57O3NYLU7ET5RRXOS4`, carries the
+> first decision this project ever recorded — 125000000 stroops at ledger 4493376, `decision_id`
+> `2fecca8477b306042f3206daffd12e1c40c8b33c0d75f811a647ff98b8bf761e`. It is still readable, but it
+> predates the `#7`–`#9` ABI changes below, so its `Decision` has no `original_reason_code` and no
+> `resolved_policy_version`. **It is history, not the current deployment** — no evidence in
+> `evidence/` refers to it.
+
+## Design decisions, and what the SOW still gets wrong
 
 `DECISIONS.md` — `#1`–`#4` (the ABI questions) and `#5` (asset representation) are **settled as of
 2026-09-04**, and the `⚠️ NOT YET FINALIZED` markers are gone from the code. The reasoning stays on
@@ -131,9 +153,10 @@ undecided question.
 
 `#7`–`#9` are **three ABI changes taken deliberately before the Week-1 freeze**, on the same date:
 `caller: Address` as the first parameter of `authorize` / `mark_settled` (#7), and
-`original_reason_code` (#8) and `resolved_policy_version` (#9) on `Decision`. They are being
-implemented in `contracts/authorization/**` now. `#10` records the Phase 1 agent-key trust boundary
-described under **Phase 1 boundaries** above.
+`original_reason_code` (#8) and `resolved_policy_version` (#9) on `Decision`. All three are
+**implemented and live** — the deployed contract returns both new fields, and every decision in
+`evidence/` was judged by that ABI. `#10` records the Phase 1 agent-key trust boundary described
+under **Phase 1 boundaries** above.
 
 Three things still need correcting in **the SOW itself**, not in the code:
 
@@ -143,9 +166,9 @@ Three things still need correcting in **the SOW itself**, not in the code:
 - §5.2 includes an adversarial test for cumulative-window boundaries, but its reason-code enum
   never names the code. The contract uses `WindowCapExceeded`; §5.2 needs it added
   (`DECISIONS.md` #3).
-- 🚨 **NEW — the seventh SOW correction overall, and the one with the shortest fuse.** §4.1 D1
-  prints the `authorize` signature verbatim, and the `caller` parameter (#7) makes that text
-  **wrong**. It must land before submission:
+- §4.1 D1 prints the `authorize` signature verbatim, and the `caller` parameter (#7) makes that
+  text **wrong**. This is the seventh SOW correction overall and the one with the shortest fuse —
+  it must land before submission:
 
   | | Text |
   |---|---|

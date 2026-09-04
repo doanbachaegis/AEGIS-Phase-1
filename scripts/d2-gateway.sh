@@ -14,10 +14,13 @@
 # ---------------------------------------------------------------------------
 # One environment override, and why it is here
 # ---------------------------------------------------------------------------
-# apps/gateway/registry.json still pins network.contract_id to the PRE-REDEPLOY
-# contract (CAAD6727...), while .env, services.json and apps/console/.env all
-# point at the current one. Registry.load() refuses to boot on that mismatch --
-# correctly, it is exactly the misconfiguration that check exists to catch.
+# HISTORICAL: when this evidence run was made, apps/gateway/registry.json still
+# pinned network.contract_id to the pre-redeploy contract while .env,
+# services.json and apps/console/.env pointed at the current one, and
+# Registry.load() refused to boot on that mismatch -- correctly, it is exactly
+# the misconfiguration that check exists to catch. The registry has since been
+# corrected, so the override below is now a no-op. It is kept so the run stays
+# reproducible exactly as it was recorded.
 #
 # Editing apps/** is out of scope for this evidence run, so this script writes a
 # corrected COPY to evidence/d2-gateway-registry.effective.json (the committed

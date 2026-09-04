@@ -162,7 +162,7 @@ silently losing precision. See `examples/receipt.example.json` for a complete do
   "version": "aegis-receipt/1",
   "network": {
     "passphrase": "Test SDF Network ; September 2015",
-    "contract_id": "CAAD6727VZDKH77IVZJ526B3YENMMU26DGHUEU3B4D6KK3JS5YTNTRPP",
+    "contract_id": "CBSKXOYOXTFT3OGEQ6NDJXD3UQPMVK4WMJFUTXRR5CP3IUZAJOSGQBWA",
     "horizon": "https://horizon-testnet.stellar.org",
     "rpc": "https://soroban-testnet.stellar.org"
   },
@@ -204,9 +204,15 @@ reads is a field nobody checks — and it reports *every* problem in one pass.
 
 ## Status
 
-The contract-side checks run against the live testnet deployment today. The Horizon-side
-checks have no live subject yet — Phase 1 has an approved decision on chain but no
-settlement transaction, because the executor (`apps/executor`) is still a skeleton. They
-are fully implemented and covered by fixture tests, including an end-to-end run of the
-complete VERIFIED path with both sources stubbed; the first live settlement is what turns
-those fixtures into a real run.
+Every check runs against live data. Ten settlements produced by `apps/executor` have been
+verified in `--strict` mode, each reporting VERIFIED with 21 of 21 checks passed, 0 failed
+and 0 unavailable. The outputs are in `evidence/d3-verifier/`, one `.txt` and one `.json`
+per settlement.
+
+That result carries more weight than a passing test suite: this tool and the executor were
+written independently of each other, against the published receipt schema and the contract
+ABI rather than against each other's code. Agreement on all ten settlements, field by
+field, is a cross-check — not two halves of one implementation confirming themselves.
+
+The fixture tests remain, including an end-to-end run of the complete VERIFIED path with
+both sources stubbed, so a regression is caught without needing the network.
