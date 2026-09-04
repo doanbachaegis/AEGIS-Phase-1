@@ -31,6 +31,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Required, not optional: workspace packages resolve through their `types`
+      # entry in dist/, dist/ is not committed, and `tsc --noEmit` emits nothing.
+      # Without this step every cross-package import is TS2307 on a fresh clone.
+      - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
 
@@ -51,3 +55,34 @@ jobs:
       - run: pnpm --filter @aegis/canonical test
       - name: Fixture must not change unintentionally
         run: git diff --exit-code vectors/canonical-vectors.json
+
+  # Same shape as canonical-parity, applied to the generated bindings:
+  # packages/bindings/ is generated from the contract wasm and committed, so it
+  # must be reproducible from contracts/authorization/src/** alone. A contract
+  # change that ships without regenerated bindings turns this red BEFORE anyone
+  # deploys — which is what keeps "ABI drift is a compile error" honest.
+  bindings-drift:
+    name: Bindings drift (wasm ↔ committed)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: wasm32v1-none }
+      - uses: Swatinem/rust-cache@v2
+      # The generator shells out to node; use the repo's pinned version.
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc }
+      # Pinned deliberately. This job is a byte comparison, so an unpinned CLI
+      # upgrade would redden it spuriously. Bump this pin and re-run
+      # `pnpm bindings` in the same commit.
+      - uses: stellar/stellar-cli@v28.0.0
+        with: { version: "28.0.0" }
+      - run: cargo build -p aegis-authorization --target wasm32v1-none --release
+      # No network, no CONTRACT_ID: the generator reads the local wasm.
+      - run: bash scripts/gen-bindings.sh
+      - name: Bindings must match the contract they are generated from
+        run: |
+          git diff --exit-code packages/bindings/
+          # --exit-code is blind to untracked files, and a newly emitted file is
+          # drift too — so assert the whole directory is clean.
+          test -z "$(git status --porcelain packages/bindings/)"

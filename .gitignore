@@ -6,11 +6,15 @@ target/
 !.env.example
 *.wasm
 .DS_Store
-packages/bindings/*
-!packages/bindings/README.md
-!packages/bindings/.gitkeep
 test_snapshots/
+
+# packages/bindings/ is GENERATED (scripts/gen-bindings.sh) but COMMITTED, so a
+# fresh clone installs and builds with no Rust toolchain and no `stellar` CLI.
+# The `bindings-drift` CI job re-generates it and fails on any diff.
+# Only its build output stays ignored — restated here so the intent survives an
+# edit to the blanket rules above.
+packages/bindings/dist/
+packages/bindings/node_modules/
 
 # Original SOW from the client — keep local, do not commit
 docs/*.pdf
-
