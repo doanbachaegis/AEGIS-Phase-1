@@ -18,3 +18,7 @@ packages/bindings/node_modules/
 
 # Original SOW from the client — keep local, do not commit
 docs/*.pdf
+
+# Pitch/overview decks dropped at the repo root. Wildcarded on purpose: the next
+# revision lands as "AEGIS v2.pdf" and would otherwise be committed by accident.
+AEGIS*.pdf

@@ -165,22 +165,24 @@ undecided question.
 `evidence/` was judged by that ABI. `#10` records the Phase 1 agent-key trust boundary described
 under **Phase 1 boundaries** above.
 
-Three things still need correcting in **the SOW itself**, not in the code:
+Three places where **the SOW text and this implementation diverge**. The SOW is fixed; none of
+these is a change being requested of it. In each case the code follows the clause that §6.3
+actually scores, and the divergence is recorded so a reviewer comparing the two documents finds the
+reasoning here rather than a contradiction:
 
 - §4.1 D1 calls `intent_hash` **single-use**, while §5.2 scenario 7 and §6.3 both require it to be
-  **idempotent**. The contract is idempotent, because that is the part being scored — the D1
-  wording needs to be corrected to match (`DECISIONS.md` #1).
+  **idempotent**. The contract is idempotent, because that is the part being scored. The
+  "single-use" property moves to settlement, guarded by the `settled` flag (`DECISIONS.md` #1).
 - §5.2 includes an adversarial test for cumulative-window boundaries, but its reason-code enum
-  never names the code. The contract uses `WindowCapExceeded`; §5.2 needs it added
-  (`DECISIONS.md` #3).
+  never names a code for it. The contract adds `WindowCapExceeded` (code `5`), and `OwnerRejected`
+  (code `7`) for the owner-rejection path §4.1 requires (`DECISIONS.md` #3).
 - §4.1 D1 prints the `authorize` signature verbatim, and the `caller` parameter (#7) makes that
-  text **wrong**. This is the seventh SOW correction overall and the one with the shortest fuse —
-  it must land before submission:
+  printed text no longer match the deployed ABI:
 
   | | Text |
   |---|---|
-  | **Before** | `authorize(intent_hash, agent_id, service_id, asset, amount) -> Decision` |
-  | **After** | `authorize(caller, intent_hash, agent_id, service_id, asset, amount) -> Decision` |
+  | **SOW §4.1 D1 prints** | `authorize(intent_hash, agent_id, service_id, asset, amount) -> Decision` |
+  | **Deployed ABI** | `authorize(caller, intent_hash, agent_id, service_id, asset, amount) -> Decision` |
 
   `mark_settled` takes `caller` first on the same terms, but the SOW never prints its signature, so
   that one needs no edit (`DECISIONS.md` #7).

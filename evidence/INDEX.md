@@ -212,16 +212,18 @@ mode, and the section says so.
 
 ---
 
-## Corrections owed to the SOW text, not to the code
+## Where the SOW text and this delivery diverge
 
-Recorded here because a reviewer comparing the SOW against the delivery will hit them, and they are
-document defects rather than implementation gaps. Full reasoning in `DECISIONS.md`.
+Four places. The SOW is fixed and none of these is a change being requested of it — each is
+recorded so that a reviewer comparing the two documents finds the reasoning rather than a
+contradiction. In every case the code follows the clause §6.3 actually scores. Full reasoning in
+`DECISIONS.md`.
 
 | SOW text | Issue |
 |---|---|
-| §4.1 D1: *"`intent_hash` is single-use"* | §5.2 scenario 7 and §6.3 both require it to be **idempotent**. The contract is idempotent, because that is the behaviour being scored; the D1 wording needs correcting (`DECISIONS.md` #1). |
-| §4.1 D1: the printed `authorize` signature | It omits the `caller` parameter, which is now the **first** argument of `authorize` and `mark_settled` (`DECISIONS.md` #7). The printed signature is wrong as written. |
-| §5.2 reason-code enum | It never names the cumulative-window code (the contract uses `WindowCapExceeded`, code `5`) nor the owner-rejection code (`OwnerRejected`, code `7`), though §5.2 tests the window boundary and §4.1 requires owner rejection (`DECISIONS.md` #3). |
+| §4.1 D1: *"`intent_hash` is single-use"* | §5.2 scenario 7 and §6.3 both require it to be **idempotent**, and the contract is idempotent because that is the behaviour being scored. "Single-use" moves to settlement, guarded by the `settled` flag (`DECISIONS.md` #1). |
+| §4.1 D1: the printed `authorize` signature | It omits `caller`, the **first** argument of `authorize` and `mark_settled` in the deployed ABI (`DECISIONS.md` #7). The printed text no longer matches what is on chain; the bindings in `packages/bindings/` are generated from the wasm and are authoritative. |
+| §5.2 reason-code enum | It names no code for the cumulative window, though §5.2 tests that boundary, and none for owner rejection, though §4.1 requires it. The contract adds `WindowCapExceeded` (`5`) and `OwnerRejected` (`7`) (`DECISIONS.md` #3). |
 | §7.2: *"< 2 sec"* | Scoped there as a roadmap figure rather than an acceptance criterion. The verdict median (**713 ms**) is inside it; the finality median (**5628 ms**) cannot be, because Stellar closes a ledger about every 5 seconds. Both numbers are reported in `d2-results.md`. |
 
 ---

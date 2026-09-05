@@ -12,8 +12,9 @@ Phase 1 trust boundary, not an undecided question.
 **#7–#9 are three ABI changes taken deliberately, before the Week-1 freeze rather than after it**
 (2026-09-04). Unlike #1–#4 these are not scaffold defaults being confirmed: each one moves the
 frozen surface, and each is being implemented in `contracts/authorization/**` against the wording
-in the entries below. #7 makes the `authorize` signature printed in **SOW §4.1 D1** wrong — a
-**seventh SOW correction**, quoted before-and-after in #7, which must land before submission.
+in the entries below. #7 makes the `authorize` signature printed in **SOW §4.1 D1** no longer
+match the deployed ABI — a divergence quoted before-and-after in #7, recorded rather than
+resolved by an amendment to a fixed document.
 **#10** records a Phase 1 trust boundary in the same shape as #6: open by design, written down
 rather than hidden.
 
@@ -37,7 +38,10 @@ the way it does, not just what it froze into. Three items still need action **on
 are what gets scored. The "single-use" property moves to **settlement**, guarded by the `settled`
 flag (`mark_settled` returns `AlreadySettled` the second time around).
 
-→ **Action required: correct the D1 wording in the SOW** to match, before Tiffany submits it.
+→ The SOW text is **not** amended for this. §4.1 D1's "single-use" wording stands as written and
+the contract diverges from it deliberately, because §5.2 scenario 7 and §6.3 are the clauses that
+get scored and both require idempotence. The divergence is recorded here rather than resolved by
+an edit nobody is in a position to make.
 
 ## #2 — How should `MEMO_HASH` be encoded?
 
@@ -65,8 +69,10 @@ State: `WindowState { window_start, spent }`, reset **lazily** when
 `now >= window_start + window_seconds`.
 
 **New reason code:** §5.2 includes an adversarial test for *"cumulative-window boundaries"*, but
-the enum in the SOW **is missing the name of the code**. The scaffold uses `WindowCapExceeded`.
-→ **Action required: add this code to §5.2 of the SOW.**
+the enum in the SOW **names no code for it**. The contract adds `WindowCapExceeded` (code `5`).
+→ The SOW enum stands as written; this code exists beyond it because §5.2 tests the boundary and a
+verdict has to carry a reason. `OwnerRejected` (code `7`) is added on the same footing for the
+owner-rejection path §4.1 requires.
 
 ## #4 — How is `decision_id` generated?
 
@@ -198,13 +204,15 @@ the letter of the sentence while contradicting how anyone would read it.
 - One more `Address` argument on the two hottest entry points, and one more signature for the
   gateway to produce (see **#10**).
 
-→ **Action required — this is the seventh SOW correction, and it must land before submission.**
-§4.1 D1 states the signature verbatim. The `caller` parameter makes that text wrong:
+→ **§4.1 D1 prints the signature verbatim, and `caller` makes that printed text diverge from the
+deployed ABI.** The SOW is fixed, so this is recorded here rather than corrected there. The
+generated bindings in `packages/bindings/` come from the wasm and are the authoritative shape; CI's
+`bindings-drift` job fails on any disagreement between them and the contract.
 
 | | Text |
 |---|---|
-| **Before** (SOW §4.1 D1, verbatim) | `authorize(intent_hash, agent_id, service_id, asset, amount) -> Decision` |
-| **After** | `authorize(caller, intent_hash, agent_id, service_id, asset, amount) -> Decision` |
+| **SOW §4.1 D1, verbatim** | `authorize(intent_hash, agent_id, service_id, asset, amount) -> Decision` |
+| **Deployed ABI** | `authorize(caller, intent_hash, agent_id, service_id, asset, amount) -> Decision` |
 
 `mark_settled` gains `caller` as its first parameter on the same terms; the SOW does not print its
 signature, so nothing there needs editing. Note that the ABI names the third parameter `agent:
