@@ -46,6 +46,7 @@ apps/executor/             D3 · decision-gated settlement
 apps/console/              D4 · reviewer verification console
 tools/verifier/            D3 · independent verifier
 vectors/                   shared test fixtures for Rust ↔ TS
+docs/postman/              importable collection for driving the API by hand
 ```
 
 ## Three invariants that must not be violated

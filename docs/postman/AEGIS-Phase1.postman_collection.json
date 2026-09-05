@@ -1,0 +1,471 @@
+{
+  "info": {
+    "name": "AEGIS Phase 1 — Gateway API",
+    "description": "Hands-on walkthrough of the AEGIS gateway against the deployed testnet stack.\n\nEvery POST here reaches the Soroban contract and writes a Decision on chain; nothing in this collection is a mock. Reads are public and need no key. The two write paths (POST /v1/intents and POST /v1/decisions/:id/resolve) require `Authorization: Bearer <AEGIS_WRITE_KEY>` — set `write_key` in the environment before running them.\n\nRun the folders in order: 1 Read → 2 Approve path → 3 Escalation path → 4 Rejection paths → 5 Lookups → 6 Access control.\n\nPolicy in force (agent-1, policy version 1):\n- approval_threshold 25 USDC — above this a decision escalates to a human\n- per_intent_cap 50 USDC — above this it is rejected outright\n- cumulative_window_cap 200 USDC per 24h — a full pass of this collection spends 50 USDC of that budget\n\nReplay note: intent_hash is a pure function of the six intent fields. Re-submitting an identical body returns the ORIGINAL decision unchanged instead of creating a new one — that is scenario 7 of the acceptance matrix, not a bug. The collection pre-request script gives every run a fresh `client_ref` so each request produces a new decision.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{write_key}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// A fresh client_ref per request keeps every submission a NEW intent_hash.",
+          "// Without it the second run of a request replays the first one's decision.",
+          "pm.collectionVariables.set('run_ref', 'postman-' + Date.now());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "https://aegis-production-2216.up.railway.app" },
+    { "key": "write_key", "value": "" },
+    { "key": "agent_id", "value": "agent-1" },
+    { "key": "service_id", "value": "openai-api" },
+    { "key": "asset_usdc", "value": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5" },
+    { "key": "asset_eurc", "value": "EURC:GB4U7IJPAOXEANDUFEAJHXTBL4YJO7AMVM4Q57D6ABDUMCUXV2C7LLHY" },
+    { "key": "run_ref", "value": "" },
+    { "key": "decision_id", "value": "" },
+    { "key": "intent_hash", "value": "" },
+    { "key": "pending_decision_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1 Read — no key needed",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] },
+            "description": "Confirms which contract and network this process talks to, whether it holds the owner key, and whether writes are enabled. `writes` must read `protected`; `disabled` means AEGIS_WRITE_KEY is unset and every write answers 503. `database: degraded` is expected on this deploy — the transcript index is in memory, the decisions themselves are on chain."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('writes are gated by a key', () => pm.expect(b.writes).to.eql('protected'));",
+                  "pm.test('owner key configured', () => pm.expect(b.owner_configured).to.be.true);",
+                  "console.log('contract', b.contract_id, '| db', b.database);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Approvals queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/approvals?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "approvals"],
+              "query": [{ "key": "limit", "value": "20" }]
+            },
+            "description": "Decisions that came back RequiresApproval and are still unresolved. Each entry carries the escalation rule verbatim and the threshold as it stood at escalation time, so a later set_policy cannot silently rewrite what the entry meant.\n\nOn this deploy `candidate_index` reads `degraded`: with no database the queue only lists escalations THIS process handled, and a restart empties it. The decisions stay on chain and stay readable by decision_id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "console.log('pending:', b.pending_count, '| index:', b.candidate_index);",
+                  "if (b.pending_count > 0) {",
+                  "  pm.collectionVariables.set('pending_decision_id', b.pending[0].decision_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 Approve path",
+      "item": [
+        {
+          "name": "Submit compliant intent → Approved / Ok",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"20\",\n  \"purpose\": \"gpt-4 batch — Postman demo\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "20 USDC: under the 25 USDC approval threshold, whitelisted service, policy asset. The contract rules Approved / Ok and the gateway returns the stored Decision synchronously (~700 ms end to end, including ledger close).\n\n`destination` in the response comes from services.json and is marked `destination_enforced: false` — the on-chain Decision carries no destination, so that field says where the published registry expects the money to go, not where the contract requires it."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('Approved', () => pm.expect(b.verdict).to.eql('Approved'));",
+                  "pm.test('reason Ok', () => pm.expect(b.reason_code).to.eql('Ok'));",
+                  "pm.collectionVariables.set('decision_id', b.decision_id);",
+                  "pm.collectionVariables.set('intent_hash', b.intent_hash);",
+                  "console.log('console:', pm.collectionVariables.get('base_url') + '/decision/' + b.decision_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Replay the same intent → same decision",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"20\",\n  \"purpose\": \"gpt-4 batch — replay probe\",\n  \"client_ref\": \"fixed-replay-ref\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "Deliberately uses a FIXED client_ref, so the six intent fields — and therefore intent_hash — are identical on every run. The first run creates a decision; every run after it returns that same decision_id, unchanged and without spending budget again. Acceptance matrix scenario 7.\n\nSend it twice during a demo and compare decision_id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "pm.test('decided', () => pm.expect(b.decision_id).to.be.a('string'));",
+                  "const seen = pm.collectionVariables.get('replay_decision_id');",
+                  "if (seen) {",
+                  "  pm.test('replay returns the original decision', () => pm.expect(b.decision_id).to.eql(seen));",
+                  "} else {",
+                  "  pm.collectionVariables.set('replay_decision_id', b.decision_id);",
+                  "  console.log('first run — send again to see the replay hold');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 Escalation path",
+      "item": [
+        {
+          "name": "Submit 30 USDC → 202 RequiresApproval",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"30\",\n  \"purpose\": \"above threshold, needs a human\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "30 USDC sits above approval_threshold (25) and below per_intent_cap (50): RequiresApproval / PendingApproval, HTTP 202 with a Location header. The decision is already on chain — it is pending a human, not pending a write."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "const b = pm.response.json();",
+                  "pm.test('RequiresApproval', () => pm.expect(b.verdict).to.eql('RequiresApproval'));",
+                  "pm.test('PendingApproval', () => pm.expect(b.reason_code).to.eql('PendingApproval'));",
+                  "pm.collectionVariables.set('pending_decision_id', b.decision_id);",
+                  "console.log('escalation rule:', b.escalation && b.escalation.rule);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resolve — approve",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approve\": true,\n  \"note\": \"approved during handover demo\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/decisions/{{pending_decision_id}}/resolve",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "decisions", "{{pending_decision_id}}", "resolve"]
+            },
+            "description": "The owner's answer, signed on chain by this process with OWNER_SECRET. `approve` is required and has no default: a missing field is never read as approval.\n\nAfter resolving, `reason_code` becomes the resolution and `original_reason_code` keeps PendingApproval — the console labels them apart on purpose. Send `\"approve\": false` instead to produce OwnerRejected."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('resolved', () => pm.expect(b.resolved).to.be.true);",
+                  "pm.test('Approved after resolve', () => pm.expect(b.verdict).to.eql('Approved'));",
+                  "pm.test('original reason kept', () => pm.expect(b.original_reason_code).to.eql('PendingApproval'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 Rejection paths — the contract ruling, not the gateway filtering",
+      "item": [
+        {
+          "name": "60 USDC → Rejected / CapExceeded",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"60\",\n  \"purpose\": \"over per_intent_cap\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "Above per_intent_cap (50 USDC). Note the status: a rejection is HTTP 200, not 4xx. The policy was evaluated and a verdict was reached — nothing failed. Clients must branch on `verdict`, never on `res.ok`."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — a rejection is a successful decision', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('Rejected', () => pm.expect(b.verdict).to.eql('Rejected'));",
+                  "pm.test('CapExceeded', () => pm.expect(b.reason_code).to.eql('CapExceeded'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unlisted service → Rejected / ServiceNotAllowed",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"stability-api\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"1\",\n  \"purpose\": \"service outside the whitelist\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "`service_id` is deliberately NOT pre-checked against services.json. Policy.allowed_services on chain is the authority, so this reaches authorize() and comes back as a stored Decision with reason ServiceNotAllowed — evidence written by the contract rather than behaviour asserted by the gateway."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('Rejected', () => pm.expect(b.verdict).to.eql('Rejected'));",
+                  "pm.test('ServiceNotAllowed', () => pm.expect(b.reason_code).to.eql('ServiceNotAllowed'));",
+                  "pm.test('ruled on chain', () => pm.expect(b.ledger_seq).to.be.a('number'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EURC → Rejected / AssetMismatch",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_eurc}}\",\n  \"amount\": \"1\",\n  \"purpose\": \"asset outside the policy\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "EURC is in the gateway registry precisely so this scenario can reach the contract. An asset that is NOT in the registry is refused locally with 400 unknown_asset and never produces on-chain evidence — try `\"asset\": \"XLM:native\"` to see that difference."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('Rejected', () => pm.expect(b.verdict).to.eql('Rejected'));",
+                  "pm.test('AssetMismatch', () => pm.expect(b.reason_code).to.eql('AssetMismatch'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown agent → 400, no chain call",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"agent-does-not-exist\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"1\",\n  \"purpose\": \"no registry row, no address, no decision\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "The gateway cannot map this agent_id to a Stellar address, so there is no authorize() call to make and no on-chain evidence to produce. It says so — 400 unknown_agent, with the registered agent ids listed — instead of inventing an address."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400', () => pm.response.to.have.status(400));",
+                  "pm.test('unknown_agent', () => pm.expect(pm.response.json().error).to.eql('unknown_agent'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5 Lookups — what a reviewer checks",
+      "item": [
+        {
+          "name": "Decision by decision_id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/decisions/{{decision_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "decisions", "{{decision_id}}"]
+            },
+            "description": "Read straight from contract storage — public, no key. `decision_id` is filled in by the Approve-path request above."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('same intent_hash', () => pm.expect(pm.response.json().intent_hash).to.eql(pm.collectionVariables.get('intent_hash')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Decision by intent_hash",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/intents/{{intent_hash}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "intents", "{{intent_hash}}"]
+            },
+            "description": "The other direction: hash the intent yourself from the six fields, then look the decision up by that hash. This is the check that makes a decision verifiable by a stranger rather than asserted by us."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('same decision_id', () => pm.expect(pm.response.json().decision_id).to.eql(pm.collectionVariables.get('decision_id')));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6 Access control",
+      "item": [
+        {
+          "name": "Write with no key → 401",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_id\": \"{{agent_id}}\",\n  \"service_id\": \"{{service_id}}\",\n  \"asset\": \"{{asset_usdc}}\",\n  \"amount\": \"1\",\n  \"purpose\": \"should never reach the contract\",\n  \"client_ref\": \"{{run_ref}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/v1/intents", "host": ["{{base_url}}"], "path": ["v1", "intents"] },
+            "description": "Auth is overridden to none for this one request. The guard runs before routing and before body validation, so an anonymous caller cannot spend the operator's key — the console stays publicly readable, submission does not."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('unauthorized', () => pm.expect(pm.response.json().error).to.eql('unauthorized'));",
+                  "pm.test('challenge header present', () => pm.expect(pm.response.headers.get('www-authenticate')).to.include('Bearer'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read with no key → 200",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] },
+            "description": "The mirror image: reads never consult the key. Everything §6.3 asks a reviewer to check keeps working for a stranger with no credentials."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('200 without a key', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
